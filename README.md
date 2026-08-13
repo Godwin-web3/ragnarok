@@ -60,7 +60,9 @@ The method is **authorization-aware**: read-only research and isolated fork expe
 
 ## How to use it
 
-Place this folder in your agent's skills directory and invoke it by name (`ragnarok`). The agent runs the lifecycle for you against a target:
+Ragnarok is an **agent skill**, not a CLI. Load it in your agent and point it at an authorized target; the agent runs the lifecycle against that target for you.
+
+Every investigation starts from a persistent state ledger, created in one command:
 
 ```bash
 ./scripts/scaffold.sh <target-dir>
