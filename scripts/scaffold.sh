@@ -17,7 +17,6 @@ for f in \
   deployment.md \
   invariants.md \
   assumptions.md \
-  hypotheses.md \
   killed.md \
   survivors.md \
   final.md; do
@@ -91,11 +90,24 @@ if [ ! -f "$RESEARCH/hypotheses.md" ]; then
   cat > "$RESEARCH/hypotheses.md" <<'EOF'
 # Hypothesis Ledger
 
-ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EFFECT | EXPECTED ECONOMIC CONSEQUENCE | TEST PLAN | STATUS
----|---|---|---|---|---|---|---|---
-H-001 | _e.g. oracle price is trusted as fresh_ | _mint/withdraw path_ | _state, roles, funds_ | _ordered steps_ | _state delta_ | _$ impact_ | _experiment file_ | UNTESTED
+ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EFFECT | EXPECTED ECONOMIC CONSEQUENCE | TEST PLAN | EVIDENCE LEVEL | STATUS
+---|---|---|---|---|---|---|---|---|---
+H-001 | _e.g. oracle price is trusted as fresh_ | _mint/withdraw path_ | _state, roles, funds_ | _ordered steps_ | _state delta_ | _$ impact_ | _experiment file_ | SOURCE_VERIFIED | UNTESTED
 
 Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
+Evidence levels: SOURCE_VERIFIED | DEPLOYMENT_VERIFIED | RUNTIME_VERIFIED | ECONOMICALLY_VERIFIED
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). SURVIVOR alone is a lead, not a finding.
+EOF
+fi
+
+# report.md — seeded so it cannot be misread as a finding by default.
+if [ ! -f "$RESEARCH/report.md" ]; then
+  cat > "$RESEARCH/report.md" <<'EOF'
+# Ragnarok Finding Report
+
+> Status: CONFIRMED   <!-- SURVIVOR / INCONCLUSIVE must NOT appear here. -->
+
+**No confirmed finding meets the Ragnarok evidence standard.**
 EOF
 fi
 

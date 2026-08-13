@@ -16,7 +16,7 @@ Prove it on a fork. Never guess. Never touch a live system.
 
 ## What Ragnarok is
 
-**Ragnarok** is an experiment-first methodology for hunting — and honestly reporting — exploitable vulnerabilities in DeFi and EVM smart-contract systems, built for bug-bounty targets and public protocol deployments.
+**Ragnarok** is an experiment-first methodology for hunting — and honestly reporting — exploitable vulnerabilities in DeFi and smart-contract systems, built for bug-bounty targets and public protocol deployments. The core methodology is chain/protocol agnostic; execution runs through an environment-specific adapter (EVM: Foundry/Anvil, CosmWasm: cargo/cw-multi-test, Solana: Anchor/LiteSVM, or the native tooling of the target ecosystem).
 
 One idea is the spine of the whole method: **a finding is not a finding until it is proven on a local fork.** Speculation is never evidence, and a live system is never exploited.
 
@@ -54,9 +54,11 @@ The method is **authorization-aware**: read-only research and isolated fork expe
 ## What is inside
 
 - **A scaffold script** that creates the persistent `research/` state ledger in one command
-- **Reference templates** for scope, invariants, assumptions, hypotheses, kills, and survivors
+- **Reference templates** for scope, invariants, assumptions, hypotheses, kills, survivors, and the final report
 - **Persistent research state** — a ledger that records every assumption, hypothesis, kill, and survivor so no effort is lost or repeated
+- **An evidence & provenance model** — every claim is tagged `SOURCE_VERIFIED` → `DEPLOYMENT_VERIFIED` → `RUNTIME_VERIFIED` → `ECONOMICALLY_VERIFIED`, so a source observation is never passed off as a live-deployment or runtime fact
 - **A falsification discipline** — every finding is assumed wrong until it survives a deliberate attempt to kill it
+- **Disclosure-ready reporting** — `research/final.md` is the complete internal record; `research/report.md` is a disclosure-ready artifact holding **confirmed findings only** (never a survivor or an unproven lead)
 
 ## How to use it
 
@@ -89,7 +91,7 @@ Every investigation starts from a persistent state ledger, created in one comman
 
 ## Author
 
-Created and maintained by **GodwinXbt** ([@Godwin-web3](https://github.com/Godwin-web3)). Built from real adversarial engagements across DeFi and EVM smart contracts. Field-tested, not theoretical.
+Created and maintained by **GodwinXbt** ([@Godwin-web3](https://github.com/Godwin-web3)). Built from real adversarial engagements across DeFi and smart-contract systems. Field-tested, not theoretical.
 
 ## License
 

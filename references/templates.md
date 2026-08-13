@@ -91,11 +91,13 @@ Authorization is required for **live state-changing exploitation only**. It is *
 ```md
 # Hypothesis Ledger
 
-ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EFFECT | EXPECTED ECONOMIC CONSEQUENCE | TEST PLAN | STATUS
----|---|---|---|---|---|---|---|---
-H-001 | ... | ... | ... | ... | ... | ... | research/experiments/H-001.t.sol | UNTESTED
+ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EFFECT | EXPECTED ECONOMIC CONSEQUENCE | TEST PLAN | EVIDENCE LEVEL | STATUS
+---|---|---|---|---|---|---|---|---|---
+H-001 | ... | ... | ... | ... | ... | ... | research/experiments/H-001 | SOURCE_VERIFIED | UNTESTED
 
 Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
+Evidence levels: SOURCE_VERIFIED | DEPLOYMENT_VERIFIED | RUNTIME_VERIFIED | ECONOMICALLY_VERIFIED
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). SURVIVOR alone is a lead, not a finding.
 ```
 
 ## killed.md (PHASE 7)
@@ -117,11 +119,13 @@ Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
 
 ## PRIM-001 — <underlying primitive>
 - Root primitive: 
-- Manifestations (each its own status):
-  - A: minting — SURVIVOR
-  - B: redemption — CONFIRMED
-  - C: liquidation — KILLED (reason: ...)
+- Manifestations (each with its own status AND evidence level):
+  - A: minting — SURVIVOR — RUNTIME_VERIFIED
+  - B: redemption — CONFIRMED — ECONOMICALLY_VERIFIED
+  - C: liquidation — KILLED (reason: ...) — SOURCE_VERIFIED
 - Consumers still to hunt: 
+
+Evidence level is carried forward from hypotheses.md — it must not be lost when a primitive moves here.
 ```
 
 ## deployment.md (PHASE 2)
@@ -131,5 +135,91 @@ Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
 
 Capability | Contract/Address | Status
 --- | --- | ---
-<feature> | 0x... | ACTIVE / INACTIVE / UNKNOWN
+<feature> | 0x... | ACTIVE / INACTIVE / UNKNOWN / UNVERIFIED
+
+Status values:
+- ACTIVE / INACTIVE — confirmed against production read-only evidence (DEPLOYMENT_VERIFIED)
+- UNKNOWN — not yet established
+- UNVERIFIED — evidence is missing/unavailable; do NOT infer live behavior from source alone
+
+## Missing / unavailable evidence
+- Which RPC, bytecode, config, or block is missing: 
+- Deployment-dependent conclusions: BLOCKED / UNKNOWN (see hypotheses.md)
+- Revisit when: <tooling/access condition>
+- Source↔deployment drift notes: <pinned source revision vs deployed version/config — divergence is a deployment-verification blocker>
+```
+
+## report.md (PHASE 15) — disclosure-ready, CONFIRMED findings only
+
+```md
+# Ragnarok Finding Report
+
+> Status: CONFIRMED   <!-- SURVIVOR / INCONCLUSIVE must NOT appear here. If no CONFIRMED finding exists, write only the "No confirmed finding" line at the bottom and delete the rest. -->
+
+## Title
+<concise, e.g. "Stale-oracle mint allows free collateral extraction">
+
+## Severity
+<High / Medium / Low — assigned only after ECONOMICALLY_VERIFIED analysis; never before>
+
+## Summary
+<2–4 sentences: what, where, why it is exploitable, who is affected>
+
+## Root Cause
+<underlying defect, referencing the invariant/assumption that fails>
+
+## Affected Code
+<file:line for each relevant location — must be pinned to the source revision actually analyzed>
+
+## Preconditions
+<state, roles, funds, configuration, deployment facts required — each DEPLOYMENT_VERIFIED or explicitly flagged>
+
+## Attacker Sequence
+<ordered steps, one actor per line, ending in a measurable delta>
+
+## Proof of Concept
+<pointer to the executable reproduction under research/experiments/ — RUNTIME_VERIFIED evidence>
+
+## Before / After State
+<attacker balances & protocol balances before → after; where the value went>
+
+## Economic Impact
+<attacker profit, protocol/victim loss, capital/liquidity/gas required, repeatability — ECONOMICALLY_VERIFIED delta>
+
+## Attacker Requirements
+<capital, liquidity, gas, tokens, access, time; whether permissionless>
+
+## Deployment Relevance
+<is this reachable on the actual deployment? evidence level; note any deployment-verification blockers>
+
+## Falsification Attempts
+<each attempt to kill the finding and why it survived — mandatory; see PHASE 11>
+
+## Mitigation
+<concrete remediation options>
+
+---
+
+**No confirmed finding meets the Ragnarok evidence standard.**
+<This single line is the entire report when nothing is CONFIRMED. It is a valid, honest deliverable — never fabricate a finding, and never promote a SURVIVOR or INCONCLUSIVE lead into this file.>
+```
+
+## final.md (PHASE 15) — complete internal record
+
+```md
+# Final Investigation Record
+
+## CONFIRMED
+- F-001 — <title>
+  - Status: CONFIRMED
+  - Evidence level: ECONOMICALLY_VERIFIED (effect RUNTIME_VERIFIED)
+  - Source hypothesis / primitive: H-### / PRIM-###   <!-- carry the evidence level forward -->
+  - Pointers: experiments/, survivors.md, report.md
+
+## INCONCLUSIVE / DESIGN RISK / PRIVILEGED RISK / FALSE POSITIVE / COVERAGE LIMITATION
+- <entry>
+  - Status: <bucket>
+  - Evidence level: <highest level actually reached, or N/A if none>
+
+> Every bucket entry carries its evidence level, carried forward from hypotheses.md → survivors.md → final.md so no evidence is lost. Only CONFIRMED entries appear in report.md.
 ```

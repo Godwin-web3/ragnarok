@@ -1,10 +1,12 @@
 ---
 name: ragnarok
-description: Adversarial DeFi security research methodology for bug-bounty targets and public protocol deployments. A single-primary-agent, experiment-first deep-dive that reconstructs the real deployed system, mines cross-boundary assumptions, generates and falsifies attack hypotheses with local forks, expands confirmed primitives, and economically validates findings. Authorization is required only for live state-changing exploitation; read-only production research and isolated local/fork experimentation proceed regardless of authorization (default env: READ_ONLY_PRODUCTION). Goal is a proven, novel, economically exploitable vulnerability — NOT a checklist of static warnings. Requires the local security toolchain (Foundry, Anvil, Slither, git, RPC access, local chain forks). Read-only against production unless explicitly authorized.
-compatibility: "Created for Zo Computer. Requires a local Solidity/Foundry toolchain, an RPC endpoint for the target chain, and access to the target codebase (public source or verified ABI; a private repo may limit depth, not safety). Live state-changing exploitation requires explicit authorization."
+description: Adversarial DeFi security research methodology for bug-bounty targets and public protocol deployments. A single-primary-agent, experiment-first deep-dive that reconstructs the real deployed system, mines cross-boundary assumptions, generates and falsifies attack hypotheses against a local runtime, expands confirmed primitives, economically validates findings, and tags every claim with an explicit evidence level (SOURCE / DEPLOYMENT / RUNTIME / ECONOMIC). Authorization is required only for live state-changing exploitation; read-only production research and isolated local experimentation proceed regardless of authorization (default env: READ_ONLY_PRODUCTION). Goal is a proven, novel, economically exploitable vulnerability — NOT a checklist of static warnings. The core methodology is chain/protocol agnostic; execution uses an environment-specific adapter (EVM: Foundry/Anvil; CosmWasm: cargo/cw-multi-test; Solana: Anchor/LiteSVM; etc.). Deployment verification is best-effort and never silently assumed. Read-only against production unless explicitly authorized.
+compatibility: "Platform-neutral. Requires the target source code (public or provided), read-only production access (RPC endpoint, block explorer, or chain data) for deployment verification where available, and the appropriate execution adapter for the target ecosystem (e.g. EVM: Foundry/Anvil; CosmWasm: cargo/cw-multi-test; Solana: Anchor/LiteSVM; other ecosystems: native test/fork/runtime tooling). Not every ecosystem need be supported at once — select the adapter for the target. If deployment evidence is unavailable, deployment-dependent conclusions are marked BLOCKED/UNKNOWN rather than assumed. A private repo may limit depth, not safety. Live state-changing exploitation requires explicit authorization."
 metadata:
-  author: godwinxbt.zo.computer
-  primary-agent: "single-agent, deep-context, persistent-state"
+  author: GodwinXbt
+  primary-agent: single-primary-agent
+  state: persistent-state
+  execution: environment-adaptive
   objective: "REALITY x EXPLOITABILITY x ECONOMIC_IMPACT x NOVELTY"
 ---
 
@@ -27,7 +29,7 @@ env: READ_ONLY_PRODUCTION | LOCAL_FORK | AUTHORIZED_LIVE
 **Default (undetermined): Authorization: UNKNOWN · Environment: READ_ONLY_PRODUCTION · Live exploitation: NO.**
 
 - **READ_ONLY_PRODUCTION** — Authorization is not required. Never submit transactions, never alter production state, never attempt live exploit execution. Continue analysis and hypothesis generation with public-chain observation: repository/source/bytecode/ABI analysis, deployment mapping, public RPC queries, event/history analysis, storage inspection, proxy/implementation analysis, public docs/frontend/API analysis, economic modeling, invariant analysis, attack-hypothesis generation, historical transaction analysis.
-- **LOCAL_FORK** — Authorization to production is not required, because experiments run against an isolated local environment. Fork public chain state locally, impersonate accounts locally, modify local state, deploy test contracts locally, construct exploit PoCs, fuzz, trace transactions, test attacker sequences, measure economic effects. Use anvil/forge-fork only; **keep the fork isolated from production**.
+- **LOCAL_FORK** — Authorization to production is not required, because experiments run against an isolated local environment. Fork public chain state locally, impersonate accounts locally, modify local state, deploy test contracts locally, construct exploit PoCs, fuzz, trace transactions, test attacker sequences, measure economic effects. Use the target's local fork / chain tooling (EVM: `anvil`/`forge` fork; CosmWasm: local chain; Solana: LiteSVM); **keep the fork isolated from production**.
 - **AUTHORIZED_LIVE** — Only reachable with explicit authorization. Follow the explicit scope and rules of the authorization; never exceed the authorized boundaries.
 
 Three activities, three authorization demands:
@@ -69,22 +71,58 @@ Definitions that govern everything below:
 - **A static-analysis warning is not a finding.**
 - **A clean result is acceptable. A fabricated finding is not.**
 
-## Model & model-agnosticism
+## Model & execution-agnosticism
 
-Ragnarok must run on any capable AI model and any set of available local tools. It adapts to what is present:
+Ragnarok must run on any capable AI model and any set of available local tools. The core methodology is **chain/protocol agnostic** — it must not be rewritten around a specific ecosystem. Execution happens through an **environment-specific execution adapter**, chosen for the target:
+
+| Ecosystem | Typical execution adapter |
+| :--- | :--- |
+| EVM | Foundry / Anvil / Slither (triage only) |
+| CosmWasm | Cargo / cw-multi-test / wasm tooling / local chain |
+| Solana | Anchor / LiteSVM / Mollusk |
+| Other ecosystems | appropriate native test / fork / runtime tooling |
+
+The fixed, one-directional dependency is:
+
+```
+Ragnarok Core methodology
+→ environment-specific execution adapter
+```
+
+The agent selects the execution environment based on the target and available tooling. Every ecosystem need not be supported at once; the methodology is satisfied as long as there is *an* execution adapter that can reproduce behavior on a local runtime. Foundry, Anvil, and Slither remain first-class **EVM** tooling, but they are not required by Ragnarok — they are the EVM adapter, not the methodology itself.
+
+Generic, cross-ecosystem capabilities always apply:
 
 - Git (revision control, diff archaeology)
 - Terminal / shell (process control, tracing, scripting)
-- Solidity compiler + Foundry (forge, cast) — deployment & experiment harness
-- Anvil — local fork server
-- Slither / other static analyzers — **triage only, never findings**
-- RPC endpoints — read-only production inspection
-- Local chain forks — the primary reproduction environment
+- RPC endpoints / block explorers — read-only production inspection
+- A local reproduction environment (fork, fixture, or local chain) — the primary execution venue
 - Repository tests — ground truth for expected behavior
 - Deployment metadata — implementations, proxies, admins, roles
-- Block explorers / authorized read-only chain data — state verification
+- Static analyzers (where available) — **triage only, never findings**
 
-Model-agnostic means the *method* is enforced regardless of model; it does not depend on any particular model's strengths or weaknesses.
+Model- and execution-agnostic mean the *method* is enforced regardless of the model and the toolchain; it does not depend on any particular model's or ecosystem's strengths or weaknesses.
+
+## Evidence & provenance model
+
+Every claim in Ragnarok carries an explicit **evidence level** stating *how* it was established and *against what*. This is how the methodology distinguishes source analysis, deployment analysis, models, and runtime experiments without letting any one of them be silently promoted to a stronger claim than its evidence supports.
+
+The levels are ordered weakest → strongest:
+
+- **SOURCE_VERIFIED** — The behavior is established from the pinned source code. It tells you what the code *could* do under its own logic. It says nothing about whether that logic is what is actually live.
+- **DEPLOYMENT_VERIFIED** — The relevant deployed contract / version / configuration / state has been independently established against production read-only evidence (deployed bytecode, addresses, configuration, storage, events, upgrade history).
+- **RUNTIME_VERIFIED** — The behavior has been reproduced through executable code against the relevant implementation / runtime: a local fork, an exact WASM / cw-multi-test fixture, an Anvil fork, or an equivalent environment. The state transition actually happens when the code runs.
+- **ECONOMICALLY_VERIFIED** — The runtime result has been converted into an actual attacker / protocol economic delta with realistic preconditions and attacker control: real capital, liquidity, gas, and repeatability, measured before/after.
+
+Three promotions are forbidden:
+
+- A Python arithmetic model (or any hand-written model) is **not** RUNTIME_VERIFIED. A standalone model can reach at most SOURCE_VERIFIED; reproducing the behavior in the actual runtime is the only path to RUNTIME_VERIFIED.
+- A source-level observation is **not** DEPLOYMENT_VERIFIED. Source capability does not establish what is deployed.
+- A runtime state transition without attacker reachability is **not** an economically exploitable vulnerability. ECONOMICALLY_VERIFIED additionally requires realistic preconditions and attacker control over the state being changed.
+
+Where a claim is asserted, state its level explicitly, e.g. `[DEPLOYMENT_VERIFIED]` or `[RUNTIME_VERIFIED]`. If a claim is not yet established at a given level, do not imply the higher level; when in doubt, use the lower level.
+
+The model feeds the hypothesis ledger (PHASE 5) and the final buckets (PHASE 15): a hypothesis is only **CONFIRMED** when its effect is RUNTIME_VERIFIED and its impact is ECONOMICALLY_VERIFIED, with the relevant deployment facts either DEPLOYMENT_VERIFIED or explicitly flagged.
 
 ## The core research loop
 
@@ -126,8 +164,11 @@ research/
 ├── killed.md             # PHASE 7
 ├── survivors.md          # PHASE 12
 ├── experiments/          # PHASE 6
-└── final.md              # PHASE 15
+├── final.md              # PHASE 15 — complete internal investigation record
+└── report.md             # PHASE 15 — disclosure-ready, CONFIRMED findings only
 ```
+
+`final.md` is the complete internal investigation record (every bucket, kill, and coverage limitation). `report.md` is a disclosure-ready artifact containing **CONFIRMED findings only** — never a SURVIVOR or INCONCLUSIVE lead. If nothing meets the evidence standard, `report.md` states that explicitly instead of fabricating a finding.
 
 **Rules of the state directory:**
 
@@ -206,6 +247,18 @@ Never assume repository code equals production. Where possible, verify against t
 - fee / reward configuration
 
 Classify every capability **ACTIVE / INACTIVE / UNKNOWN**. A theoretically dangerous feature that is inactive in the deployment is marked INACTIVE and **deprioritized** — do not spend hours exploiting dead code. Record the UNKNOWN set so it can be revisited.
+
+**Explicit deployment-verification failure handling.** When RPC access, deployment metadata, bytecode, configuration, or other production evidence is unavailable or incomplete:
+
+1. Mark the affected deployment information **UNVERIFIED** in `research/deployment.md`. A capability you could not confirm is `UNVERIFIED`, never silently `ACTIVE` / `INACTIVE`.
+2. **Do not infer live behavior from source alone.** Source capability is SOURCE_VERIFIED, not DEPLOYMENT_VERIFIED.
+3. Continue source-level research where it is still useful, but tag any deployment-dependent conclusion **BLOCKED** or **UNKNOWN** in the ledger.
+4. Explicitly record what evidence is missing (which RPC, which bytecode, which configuration, which block).
+5. Revisit deployment verification when tooling becomes available. A BLOCKED conclusion is a reason to return, not a license to assume.
+
+**Source/deployment drift rules.** The agent must never silently convert "source says X" into "deployed protocol does X" unless deployment evidence supports it. Whenever the pinned source revision differs from the deployed code / version / configuration — or the deployment cannot be confirmed at all — that is a **deployment-verification blocker**, not an assumption to paper over.
+
+Rujira FIN-style example (conceptually): a source revision that is not known to equal the deployed contract / version / configuration must produce a deployment-verification blocker. Any hypothesis that depends on the deployed code behaving like the pinned source is marked **BLOCKED** until the deployment is confirmed — no matter how convincing the source-level logic looks. This applies equally to bytecode drift, proxy/implementation mismatch, configuration differences, and missing evidence.
 
 Create `research/deployment.md`.
 
@@ -294,10 +347,13 @@ ATTACK SEQUENCE
 EXPECTED EFFECT
 EXPECTED ECONOMIC CONSEQUENCE
 TEST PLAN
+EVIDENCE LEVEL
 STATUS
 ```
 
 Statuses (only one at a time): `UNTESTED`, `TESTING`, `KILLED`, `INCONCLUSIVE`, `SURVIVOR`, `CONFIRMED`.
+
+**EVIDENCE LEVEL** records the strongest level actually reached (see "Evidence & provenance model"): `SOURCE_VERIFIED` → `DEPLOYMENT_VERIFIED` → `RUNTIME_VERIFIED` → `ECONOMICALLY_VERIFIED`. A hypothesis may only be **CONFIRMED** when its effect is RUNTIME_VERIFIED and its impact is ECONOMICALLY_VERIFIED. **SURVIVOR** means it survived falsification but has not met that bar — it is a lead, not a finding.
 
 Create `research/hypotheses.md`.
 
@@ -314,7 +370,7 @@ Do **not** write long speculative explanations before testing. For every high-va
 7. Compare balances before/after.
 8. Determine whether the invariant actually breaks.
 
-Prefer **executable evidence** over prose. Put experiments under `research/experiments/`, using Foundry tests where appropriate (`forge test`, `forge script` with an Anvil fork, `cast` for state inspection). Name each experiment by hypothesis ID, e.g. `research/experiments/H-003-mint-reentrancy.t.sol`.
+Prefer **executable evidence** over prose. Put experiments under `research/experiments/`, executed through the target's execution adapter (EVM: `forge test` / Anvil fork / `cast`; CosmWasm: `cw-multi-test` fixtures or a local chain; Solana: Anchor / LiteSVM; or the equivalent native runtime). Name each experiment by hypothesis ID, e.g. `research/experiments/H-003-mint-reentrancy`. Evidence is RUNTIME_VERIFIED only when the behavior was reproduced against the relevant implementation / runtime — a separate arithmetic model is not a runtime reproduction.
 
 ## PHASE 7 — ATTACK MUTATION
 
@@ -383,7 +439,7 @@ victim/protocol loss
 attacker profit
 ```
 
-Distinguish **TECHNICAL VIOLATION** from **ECONOMIC EXPLOIT**. **Do not assign severity until this analysis exists.**
+Distinguish **TECHNICAL VIOLATION** from **ECONOMIC EXPLOIT**. **Do not assign severity until this analysis exists.** An issue reaches **ECONOMICALLY_VERIFIED** only when its impact is computed as a realistic attacker / protocol delta with real preconditions and attacker control — not a bare state transition.
 
 ## PHASE 11 — FALSIFICATION (mandatory)
 
@@ -412,7 +468,7 @@ Examples:
 - STALE ORACLE → minting, redemption, liquidation, collateral valuation, reward calculation, secondary markets
 - SHARE ACCOUNTING ERROR → deposit, withdrawal, donation, rewards, liquidation, cross-market accounting
 
-This is **mandatory**, not optional. Every consumer of the primitive must be hunted. Create `research/survivors.md` capturing the primitive and each manifestation with its own status.
+This is **mandatory**, not optional. Every consumer of the primitive must be hunted. Create `research/survivors.md` capturing the primitive and each manifestation with its own status **and its evidence level carried forward from `hypotheses.md`** — the level is never dropped when a hypothesis becomes a manifestation.
 
 ## PHASE 13 — SECOND-PASS NOVEL RESEARCH
 
@@ -465,7 +521,7 @@ A confirmed finding requires, where technically possible:
 
 Separate clearly into buckets:
 
-- **CONFIRMED** — executable proof + economic validation + survived falsification
+- **CONFIRMED** — executable proof (RUNTIME_VERIFIED) + economic validation (ECONOMICALLY_VERIFIED) + survived falsification
 - **INCONCLUSIVE** — plausible but unproven or blocked
 - **DESIGN RISK** — dangerous design but not shown exploitable
 - **PRIVILEGED RISK** — requires admin/operator/key compromise, not permissionless
@@ -474,7 +530,14 @@ Separate clearly into buckets:
 
 **Never inflate severity.** A clean result is acceptable and should be reported honestly alongside the exhausted attack surfaces.
 
-Create `research/final.md`.
+Create `research/final.md` — the **complete internal investigation record**: all buckets, all kills, all survivors, all coverage limitations, the full falsification history. Every bucket entry records its evidence level, carried forward from `hypotheses.md` and `survivors.md`, so the evidence supporting a status is never lost in the final record.
+
+**Disclosure-ready report.** Create `research/report.md` — a disclosure-ready artifact containing **CONFIRMED findings only**.
+
+- A hypothesis that is only **SURVIVOR** or **INCONCLUSIVE** is never a report finding. Survivors and incomplete leads stay in `final.md`, `survivors.md`, and `hypotheses.md`; they do not enter `report.md`.
+- **Do not generate a vulnerability report merely because a hypothesis is SURVIVOR or INCONCLUSIVE.** Reporting requires a CONFIRMED finding.
+- If no confirmed vulnerability exists, `report.md` must explicitly state that **no confirmed finding meets the Ragnarok evidence standard**, rather than fabricating or downgrading one. A clean report is a valid, honest deliverable.
+- Follow the report template in `references/templates.md`. Never include unproven hypotheses, and never inflate a finding's evidence level or severity to fill the template.
 
 ---
 
@@ -494,6 +557,7 @@ Ragnarok must explicitly prevent:
 10. Spawn sub-agents merely to inflate the apparent amount of analysis.
 11. Conclude "no vulnerabilities" without documenting exhausted attack surfaces.
 12. Repeat hypotheses already conclusively killed.
+13. Report a SURVIVOR or INCONCLUSIVE lead as a confirmed finding, or treat a hand-written model as a runtime reproduction.
 
 ## Quality bar
 
@@ -503,6 +567,7 @@ Behave like a patient adversarial researcher, not a vulnerability scanner.
 - EXECUTABLE EVIDENCE **over** SPECULATION.
 - ECONOMIC PROOF **over** SEVERITY GUESSING.
 - DEPLOYMENT REALITY **over** SOURCE-ONLY ANALYSIS.
+- EXPLICIT EVIDENCE LEVELS **over** IMPLIED CONFIDENCE.
 - NOVEL ATTACK PATHS **over** CHECKLIST COMPLETION.
 
 Be prepared to spend substantial time on one promising primitive before moving on. The objective is **not** to prove the protocol is vulnerable. The objective is to discover **whether** it contains a previously unidentified, practically exploitable failure — and to gather enough evidence to prove it either way.
@@ -523,6 +588,6 @@ Be prepared to spend substantial time on one promising primitive before moving o
 12. PHASE 11 → falsify survivors.
 13. PHASE 12 → expand primitives into `survivors.md`.
 14. PHASE 13 → second-pass novelty.
-15. PHASE 14–15 → residual surface + `final.md` with strict buckets.
+15. PHASE 14–15 → residual surface; `final.md` (complete internal record) + `report.md` (disclosure-ready, CONFIRMED findings only).
 
 Always re-read `hypotheses.md` and `killed.md` before continuing any resumed investigation. Persistent state is the skill.
