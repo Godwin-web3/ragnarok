@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Ragnarok
+#  Ragnarok
 
 ### An adversarial DeFi security research methodology
 
