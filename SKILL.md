@@ -93,7 +93,7 @@ The agent selects the execution environment based on the target and available to
 
 Generic, cross-ecosystem capabilities always apply:
 
-- Git (revision control, diff archaeology)
+- Git (revision control, diff archaeology — including recovering deployed-but-since-removed source; see PHASE 2)
 - Terminal / shell (process control, tracing, scripting)
 - RPC endpoints / block explorers — read-only production inspection
 - A local reproduction environment (fork, fixture, or local chain) — the primary execution venue
@@ -123,6 +123,14 @@ Three promotions are forbidden:
 Where a claim is asserted, state its level explicitly, e.g. `[DEPLOYMENT_VERIFIED]` or `[RUNTIME_VERIFIED]`. If a claim is not yet established at a given level, do not imply the higher level; when in doubt, use the lower level.
 
 The model feeds the hypothesis ledger (PHASE 5) and the final buckets (PHASE 15): a hypothesis is only **CONFIRMED** when its effect is RUNTIME_VERIFIED and its impact is ECONOMICALLY_VERIFIED, with the relevant deployment facts either DEPLOYMENT_VERIFIED or explicitly flagged.
+
+**Assumption provenance.** The four evidence levels above grade top-level hypotheses and findings. The same discipline applies one level down, to the individual assumptions and dependency claims a hypothesis or a "this is safe" conclusion is built on. **Every security-critical assumption must carry provenance and confidence** — a tag for *how* it was established, not just *what* it concludes. Three worked examples:
+
+- `Assumption: the P-256 verification precompile behaves per expected semantics. Provenance: RUNTIME_VERIFIED — self-generated signature, live-network eth_call.`
+- `Assumption: this recovered file matches the historically deployed source. Provenance: git constructor-signature + timeline match; byte identity NOT verified (no solc available) — treat as SOURCE_VERIFIED-with-a-version-proximity-caveat, not DEPLOYMENT_VERIFIED.`
+- `Assumption: this controller cannot be reached by an unauthorised actor. Provenance: source-level reasoning only; not empirically tested.`
+
+An assumption stated without its provenance is incomplete, regardless of how confident the prose sounds — "this looks safe" and "this is proven safe" are different claims, and the reader (including a future resumed session) needs to know which one is being made. This is what separates a plausible-sounding audit from a system that knows what it actually knows.
 
 ## The core research loop
 
@@ -238,6 +246,9 @@ Before any research, determine and record in `research/scope.md`:
    - `AUTHORIZED_LIVE`: follow the explicit scope and rules of the authorization; never exceed the authorized boundaries.
 4. **Never perform write operations against production systems.** Production interaction is limited to read-only investigation (state queries, logs, bytecode) unless `AUTHORIZED_LIVE` explicitly permits more.
 5. Prefer **local forks** for any exploit reproduction.
+6. **Prior scrutiny.** Catalog what has already been reviewed before reconstruction begins: known audit reports (firm, date, commit/version scoped), the bounty program's explicit "Known Issues" / exclusions list, and any prior disclosed vulnerabilities for this target. Record it in `research/scope.md`.
+
+**Prior scrutiny is a *prior*, never a *prohibition*.** It tells PHASE 5/13 where to look *first* for something genuinely new — it is never a reason to skip verifying something already reviewed. A heavily-audited area can still be vulnerable because the live deployment differs from the audited commit, composition creates a new failure, an assumption changed, a new integration was added, an old invariant became invalid, or the vulnerability lives in an interaction the audit never modeled. The rule: **known scrutiny reduces novelty priority; it never makes an area safe.**
 
 Create `research/scope.md`. Record the environment classification and revisit it if authorization status changes.
 
@@ -278,6 +289,8 @@ ACTOR → ENTRY POINT → MODIFIER/CHECK → INTERNAL CALL → STATE WRITE → D
 
 and explicitly map the **normal**, **emergency**, **recovery**, **upgrade**, and **migration** paths where applicable — not only the happy path.
 
+**Composition thinking starts here, not at PHASE 8.** The bugs that survive repeated audits overwhelmingly live in the seams between independently-correct components, not inside any single function — that ceiling is exactly what separates a checklist pass from an investigation that finds what prior review missed. `research/trust-boundaries.md` must therefore include at least one real cross-contract trace built on the explicit frame: **"Assume every participating component is individually correct. Does the composed system still preserve its security invariants?"** PHASE 8 later gives this dedicated, systematic attention across every pairing — but it must not be the *first* time the question gets asked.
+
 Create `research/architecture.md`, `research/asset-flows.md`, `research/trust-boundaries.md`.
 
 **Discovery during reconstruction.** You *will* encounter interesting things before reconstruction is complete — suspicious authorization asymmetry, unusual controller wiring, a missing validation, an odd external call, a stale deployment, unusual storage layout, suspicious assembly, a potential invariant violation. **Do not investigate it deeply.** Instead: record it in `research/leads.md` (`OBSERVED`), preserve the evidence and its exact location, assign an initial confidence/impact hypothesis, and continue the reconstruction phase you were in. Return to the lead only after `scripts/gate_check.sh` reports the Hypothesis Generation Gate `OPEN` — see "Anti-Anchoring" below. Never let `OBSERVED` become `EXPLOIT` directly; see "Mandatory Phase Gate" above.
@@ -312,6 +325,15 @@ Classify every capability **ACTIVE / INACTIVE / UNKNOWN**. A theoretically dange
 Rujira FIN-style example (conceptually): a source revision that is not known to equal the deployed contract / version / configuration must produce a deployment-verification blocker. Any hypothesis that depends on the deployed code behaving like the pinned source is marked **BLOCKED** until the deployment is confirmed — no matter how convincing the source-level logic looks. This applies equally to bytecode drift, proxy/implementation mismatch, configuration differences, and missing evidence.
 
 Deployment facts **must be stored in `research/deployment.md`** — never buried inside `architecture.md` or another artifact. `scripts/gate_check.sh` checks `deployment.md` itself; evidence recorded in the wrong file does not count as Phase 2 completion, no matter how thorough it is.
+
+**Dependency liveness/correctness verification.** An address match is not a behavior check. For precompiles, oracles, and pluggable algorithm/registry contracts (anything the system trusts to correctly perform a specific computation — signature verification, price feeds, hash digests, swappable implementations), establish the full chain: `address → code identity → interface/expected behavior → runtime behavior`. Matching an address against `deployments/*.json` only gets you the first step. Where technically feasible, verify *behavior* — a self-generated test vector submitted against live state (not a memorized or copied one, so the ground truth is independently certain), or an equivalent runtime check — not merely that a name and an address line up. This is what catches a pluggable registry silently pointing at a stub/dummy/test implementation, or a dependency on a precompile/EIP whose activation status was assumed rather than confirmed. **When behavioral verification is genuinely not feasible, record the dependency explicitly as an UNVERIFIED assumption** (with provenance, per the "Assumption provenance" note above) — never let an address match silently stand in for a behavior check.
+
+**Recovering missing deployed source.** Deployed bytecode sometimes has no corresponding `.sol` file in the pinned tree — a contract was refactored, renamed, or removed from source while an old instance stays live. Do not skip auditing it; recover it:
+
+1. Check the deployment artifact's own compiler metadata (`metadata.settings.compilationTarget` in the deployment JSON, or equivalent for the target ecosystem) for the *original* source path and contract name — it is often still a file that exists in the tree, just under an earlier revision.
+2. If the local clone is shallow, unshallow it (`git fetch --unshallow`) — historical recovery needs full history.
+3. Search git log for that path's history and, if the exact commit isn't obvious, match the deployed ABI's constructor signature (parameter count, types, order) against historical versions of the file to find the closest match.
+4. **State the confidence tier explicitly, and never let one collapse into the other:** a constructor-signature-plus-timeline match is not the same claim as a `solc`-diffed, byte-verified match. Label the recovered source with which one applies (per "Assumption provenance") before drawing any conclusion from its internal logic.
 
 Create `research/deployment.md`.
 
@@ -393,6 +415,13 @@ For **every** lead in `research/leads.md` before it may be promoted `QUEUED → 
 9. What evidence would kill the hypothesis?
 
 Do **not** permit vague reasoning such as "could potentially lead to...". A hypothesis is expressed as a **concrete state transition**, not a feeling of suspicion.
+
+**`SELF_RESOLVED` — the other way a lead closes.** Not every lead in `leads.md` survives to become a hypothesis, and not every one gets promoted or empirically tested — some get closed by reasoning alone during reconstruction (e.g. tracing every call path that reaches a function and confirming none is attacker-reachable, or working through a type conversion's actual semantics). That is legitimate and common, but it is **not the same claim as `FALSIFIED`**, and the ledger must not blur them:
+
+- `FALSIFIED` — "we tested the hypothesis and it failed." An empirical check happened.
+- `SELF_RESOLVED` — "we reasoned ourselves out of it." No empirical check happened; the closure rests entirely on the agent's own reasoning at the time.
+
+Record a closed-by-reasoning lead as `OBSERVED → SELF_RESOLVED` in `leads.md`, with the reasoning that closed it. This is not a weaker outcome than `FALSIFIED` — but it is a *different* one, and PHASE 13 exists partly to revisit it (see below).
 
 ## Hypothesis Generation Gate (mandatory checkpoint)
 
@@ -589,6 +618,8 @@ Investigate:
 
 Goal: search **outside** the obvious vulnerability taxonomy.
 
+**Revisit `SELF_RESOLVED` leads with fresh skepticism.** Before `final.md` is written, spend part of this pass specifically re-examining every `leads.md` entry marked `SELF_RESOLVED` (see "Anti-Anchoring") — conclusions the agent reasoned its way out of during reconstruction, never empirically checked. Confirmation bias when *closing* a lead is exactly as dangerous as anchoring bias when *opening* one, and only the latter has a countermeasure earlier in this methodology. For each `SELF_RESOLVED` entry, ask: does the original reasoning still hold under a genuinely skeptical re-read, and — where feasible — can it be upgraded to an empirically-checked closure rather than left resting on reasoning alone?
+
 ## PHASE 14 — RESIDUAL ATTACK SURFACE
 
 Before concluding, generate the full accounting:
@@ -632,6 +663,8 @@ Separate clearly into buckets:
 
 Create `research/final.md` — the **complete internal investigation record**: all buckets, all kills, all survivors, all coverage limitations, the full falsification history. Every bucket entry records its evidence level, carried forward from `hypotheses.md` and `survivors.md`, so the evidence supporting a status is never lost in the final record.
 
+**`final.md` must explicitly state whether a full PHASE 8 composition pass was performed and what it covered** — which pairings were traced, which were not, and why. This is not a claim that every investigation needs identical depth; it is the accountability half of PHASE 1's requirement to at least begin composition thinking during reconstruction. Skipping the dedicated PHASE 8 pass must be a visible, honestly-stated gap in `final.md`, never a silent one.
+
 **Disclosure-ready report.** Create `research/report.md` — a disclosure-ready artifact containing **CONFIRMED findings only**.
 
 - A hypothesis that is only **SURVIVOR** or **INCONCLUSIVE** is never a report finding. Survivors and incomplete leads stay in `final.md`, `survivors.md`, and `hypotheses.md`; they do not enter `report.md`.
@@ -662,6 +695,11 @@ Ragnarok must explicitly prevent:
 15. Investigate a lead deeply (`OBSERVED → EXPLOIT`) instead of recording it in `leads.md` and returning to reconstruction (`OBSERVED → QUEUED`).
 16. Trust conversation history, tool-call history, or an agent's self-report of "phase complete" instead of what `scripts/gate_check.sh` reports from the artifacts on disk.
 17. Store deployment, architecture, or invariant evidence in the wrong artifact and count it toward that phase's completion.
+18. Treat an address match against `deployments/*.json` as sufficient verification of a precompile's, oracle's, or pluggable registry's actual *behavior* — or silently treat an unverifiable dependency as verified instead of recording it as an explicit UNVERIFIED assumption.
+19. Treat cross-contract composition analysis as something that only happens in PHASE 8, deferred wholesale rather than begun during PHASE 1 reconstruction.
+20. Close a `leads.md` entry `SELF_RESOLVED` and never revisit it — PHASE 13 must re-examine these with fresh skepticism before `final.md` is written.
+21. Treat prior-audit coverage or a bounty program's "Known Issues" list as proof an area is safe, rather than as a novelty-priority signal only.
+22. State a security-critical assumption without its provenance — leaving it ambiguous whether a claim is RUNTIME_VERIFIED, a source-level inference, or a recovered-with-caveats reconstruction.
 
 ## Quality bar
 
@@ -679,20 +717,20 @@ Be prepared to spend substantial time on one promising primitive before moving o
 ## Execution checklist (quick reference)
 
 1. `scripts/scaffold.sh <target-dir>` — create `research/` state.
-2. PHASE 0 → write `scope.md`; record authorization status + classify environment (default UNKNOWN / READ_ONLY_PRODUCTION / live=NO).
-3. PHASE 1 → `architecture.md`, `asset-flows.md`, `trust-boundaries.md`. Queue anything suspicious in `leads.md` (`OBSERVED`) instead of chasing it.
-4. PHASE 2 → `deployment.md` (verify vs chain, classify ACTIVE/INACTIVE/UNKNOWN). Keep deployment facts in this file, not scattered elsewhere.
+2. PHASE 0 → write `scope.md`; record authorization status + classify environment (default UNKNOWN / READ_ONLY_PRODUCTION / live=NO). Catalog prior scrutiny (known audits, program exclusions, prior disclosures) — a prior for novelty priority, never a reason to skip verification.
+3. PHASE 1 → `architecture.md`, `asset-flows.md`, `trust-boundaries.md`, including at least one real cross-contract composition trace. Queue anything suspicious in `leads.md` (`OBSERVED`) instead of chasing it.
+4. PHASE 2 → `deployment.md` (verify vs chain, classify ACTIVE/INACTIVE/UNKNOWN). Keep deployment facts in this file, not scattered elsewhere. Verify dependency *behavior* (precompiles, oracles, pluggable registries), not just address matches; recover missing deployed source via git archaeology when needed, with an honest confidence label.
 5. PHASE 3 → `invariants.md` (or an explicit "No Applicable Invariants" rationale — never leave it empty).
-6. PHASE 4 → `assumptions.md` (cross-boundary first). Keep queueing leads.
+6. PHASE 4 → `assumptions.md` (cross-boundary first, each with provenance). Keep queueing leads; close some `SELF_RESOLVED` where reasoning alone settles them.
 7. **Gate check** → `scripts/gate_check.sh research/`. If `LOCKED`, return to the phase it names — do not proceed to step 8 regardless of how compelling a queued lead looks.
 8. PHASE 5 → `hypotheses.md` ledger, only once the gate is `OPEN`. Promote a lead `QUEUED → HYPOTHESIS` only after answering the anti-anchoring questions.
 9. PHASE 6 → run experiments under `research/experiments/`.
 10. PHASE 7 → mutate failed attacks, record kills in `killed.md`.
-11. PHASE 8–9 → composition + state-machine passes.
+11. PHASE 8–9 → composition + state-machine passes (full, systematic — beyond PHASE 1's initial trace).
 12. PHASE 10 → economic validation before any severity.
 13. PHASE 11 → falsify survivors.
 14. PHASE 12 → expand primitives into `survivors.md`.
-15. PHASE 13 → second-pass novelty.
-16. PHASE 14–15 → residual surface; `final.md` (complete internal record) + `report.md` (disclosure-ready, CONFIRMED findings only).
+15. PHASE 13 → second-pass novelty, including a fresh-skepticism revisit of every `SELF_RESOLVED` lead.
+16. PHASE 14–15 → residual surface; `final.md` (complete internal record, stating whether a full composition pass was performed) + `report.md` (disclosure-ready, CONFIRMED findings only).
 
 Always run `scripts/gate_check.sh` and re-read `hypotheses.md`, `leads.md`, and `killed.md` before continuing any resumed investigation. Persistent state is the skill — the gate script is how that rule stops being optional.

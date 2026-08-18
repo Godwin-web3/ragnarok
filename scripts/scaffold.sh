@@ -99,10 +99,12 @@ if [ ! -f "$RESEARCH/leads.md" ]; then
 ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
 ---|---|---|---|---|---
 
-Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED
+Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED / SELF_RESOLVED
 Never: OBSERVED -> EXPLOIT. A lead may only become HYPOTHESIS once
 scripts/gate_check.sh reports the Hypothesis Generation Gate as OPEN, and
 only after answering the anti-anchoring questions in SKILL.md.
+FALSIFIED = an empirical check ran and failed. SELF_RESOLVED = closed by
+reasoning alone, no empirical check -- revisit these in PHASE 13.
 EOF
 fi
 
@@ -141,6 +143,13 @@ authorization changes the execution environment; it does not terminate research.
 - In-scope assets:
 - Out-of-scope:
 - Testing boundaries (fork-only? read-only RPC? testnets?):
+
+## Prior scrutiny
+# A prior for novelty priority -- never a reason to skip verification.
+# Known scrutiny reduces where to look first; it never makes an area safe.
+- Known audit reports (firm, date, commit/version scoped):
+- Bounty program "Known Issues" / exclusions list:
+- Prior disclosed vulnerabilities for this target:
 
 ## Deployment
 - Chains:

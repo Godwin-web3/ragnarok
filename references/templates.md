@@ -34,6 +34,14 @@ Authorization is required for **live state-changing exploitation only**. It is *
 - Out-of-scope: 
 - Testing boundaries (fork-only? read-only RPC? testnets?): 
 
+## Prior scrutiny
+A prior for novelty priority — never a reason to skip verification. Known scrutiny reduces where to look
+first for something new; it never makes an area safe (deployment drift, composition, and changed assumptions
+can all reintroduce risk in already-audited code).
+- Known audit reports (firm, date, commit/version scoped): 
+- Bounty program "Known Issues" / exclusions list: 
+- Prior disclosed vulnerabilities for this target: 
+
 ## Deployment
 - Chains: 
 - Deployed addresses:
@@ -134,8 +142,12 @@ ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
 ---|---|---|---|---|---
 L-001 | file:line | <what is suspicious> | LOW/MED/HIGH | <hypothesis of impact> | OBSERVED
 
-Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED
+Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED / SELF_RESOLVED
 Never: OBSERVED -> EXPLOIT.
+
+FALSIFIED means an empirical check ran and failed. SELF_RESOLVED means the lead was closed by reasoning
+alone during reconstruction, no empirical check performed — not a weaker outcome, but a different one.
+PHASE 13 revisits every SELF_RESOLVED entry with fresh skepticism before final.md is written.
 ```
 
 Record every interesting-but-unverified observation here **immediately**,
