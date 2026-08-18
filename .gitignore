@@ -1,0 +1,7 @@
+# Ragnarok is a public methodology repo. Investigation state must never be
+# committed here — see SKILL.md, "Persistent research state": research/ lives
+# inside the *target's* working directory, never in this repo.
+# This is a belt-and-suspenders technical guard for the case where scaffold.sh
+# is ever run from inside a checkout of this repo itself.
+research/
+/research/
