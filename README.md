@@ -54,7 +54,9 @@ The method is **authorization-aware**: read-only research and isolated fork expe
 ## What is inside
 
 - **A scaffold script** that creates the persistent `research/` state ledger in one command
-- **Reference templates** for scope, invariants, assumptions, hypotheses, kills, survivors, and the final report
+- **A mechanical phase gate** (`scripts/gate_check.sh`) that inspects the on-disk `research/*.md` artifacts — never conversation history or an agent's self-report — and refuses to let hypothesis generation, exploit construction, fuzzing, or falsification start until reconstruction (scope, architecture, asset flows, trust boundaries, deployment, invariants) is substantively complete
+- **A pending-lead queue** (`research/leads.md`) — anything interesting found mid-reconstruction is recorded and left for later (`OBSERVED → QUEUED → HYPOTHESIS → TESTING → CONFIRMED/FALSIFIED`), never chased immediately
+- **Reference templates** for scope, architecture, asset flows, trust boundaries, invariants, assumptions, leads, hypotheses, kills, survivors, and the final report
 - **Persistent research state** — a ledger that records every assumption, hypothesis, kill, and survivor so no effort is lost or repeated
 - **An evidence & provenance model** — every claim is tagged `SOURCE_VERIFIED` → `DEPLOYMENT_VERIFIED` → `RUNTIME_VERIFIED` → `ECONOMICALLY_VERIFIED`, so a source observation is never passed off as a live-deployment or runtime fact
 - **A falsification discipline** — every finding is assumed wrong until it survives a deliberate attempt to kill it
@@ -69,6 +71,14 @@ Every investigation starts from a persistent state ledger, created in one comman
 ```bash
 ./scripts/scaffold.sh <target-dir>
 ```
+
+Before the agent may generate attack hypotheses, it must run the phase gate and get a clean bill of health:
+
+```bash
+./scripts/gate_check.sh <target-dir>/research
+```
+
+`LOCKED` means reconstruction isn't done yet — no hypothesis work, no matter how good the lead looks. `OPEN` means Phases 0-3 are substantively complete and hypothesis generation may begin.
 
 ## Principles that never bend
 
@@ -86,6 +96,8 @@ Every investigation starts from a persistent state ledger, created in one comman
 | `SKILL.md` | The methodology |
 | `references/templates.md` | Fill-in templates for the research ledger |
 | `scripts/scaffold.sh` | Creates the `research/` state directory |
+| `scripts/gate_check.sh` | Mechanical phase gate — inspects `research/` artifacts and blocks premature hypothesis/exploit work |
+| `scripts/tests/gate_check_test.sh` | Regression tests for the phase gate |
 | `README.md` | This overview |
 | `LICENSE` | Usage terms |
 

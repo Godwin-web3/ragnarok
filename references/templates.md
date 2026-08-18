@@ -57,10 +57,98 @@ Authorization is required for **live state-changing exploitation only**. It is *
 - Local-fork experimentation: YES (isolated from production) 
 ```
 
+## architecture.md (PHASE 1)
+
+```md
+# Architecture
+
+## Contracts & Components
+<contracts, implementations, proxies, factories, clones, libraries>
+
+## Entry Points
+<every external/public entry point, by contract>
+
+## Privileged Functions & Upgrade Paths
+<admin/owner/operator functions; upgrade mechanisms; initialization state>
+
+## External Dependencies & Callback Surfaces
+<oracles, tokens, external protocols, bridges, callback/reentrancy surfaces>
+
+## Actor → Entry → Check → State → Effect Traces
+<one trace per important control-flow path, e.g.:>
+<Actor -> entryPoint() -> modifier/check -> internal call -> state write -> downstream effect>
+```
+
+`scripts/gate_check.sh` requires all five sections above to be present with
+non-placeholder content before Phase 1 can be marked COMPLETE.
+
+## asset-flows.md (PHASE 1)
+
+```md
+# Asset Flows
+
+## Assets In
+<how value enters the system>
+
+## Assets Out
+<how value leaves the system>
+
+## Custody & Accounting Transitions
+<custody transitions; internal accounting/share transitions>
+
+## Mint / Burn / Claim / Redemption Paths
+<every path that creates, destroys, or transfers a claim on value>
+
+## Attacker-Controlled Inputs Affecting Value
+<inputs an attacker can choose that influence a value-bearing state transition>
+```
+
+## trust-boundaries.md (PHASE 1)
+
+```md
+# Trust Boundaries
+
+## Actors & Authorities
+<users, operators, admins, guardians, keepers, controllers, contracts,
+external protocols, oracles, bridges, upgrade authorities>
+
+## Actor → Entry Point → Check → Internal Call → State Write → Effect Traces
+<for every security-critical permission:>
+<Actor -> entry point -> modifier/check -> internal call -> state write -> downstream effect>
+
+## Normal / Emergency / Recovery / Upgrade / Migration Paths
+<map each path explicitly where applicable — do not only list authorities,
+trace what each one can actually do>
+```
+
+Do not merely list authorities — trace the full path for each
+security-critical permission, and cover the emergency/recovery/upgrade/
+migration paths explicitly, not only the normal-operation path.
+
+## leads.md — pending lead queue (used throughout reconstruction)
+
+```md
+# Pending Leads
+
+ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
+---|---|---|---|---|---
+L-001 | file:line | <what is suspicious> | LOW/MED/HIGH | <hypothesis of impact> | OBSERVED
+
+Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED
+Never: OBSERVED -> EXPLOIT.
+```
+
+Record every interesting-but-unverified observation here **immediately**,
+then return to the reconstruction phase you were in. Do not investigate a
+lead deeply until `scripts/gate_check.sh` reports the Hypothesis Generation
+Gate as OPEN — and even then, a lead is promoted OBSERVED/QUEUED →
+HYPOTHESIS only after it has answered the anti-anchoring questions (see
+SKILL.md, "Anti-Anchoring — Discovery ≠ Validation").
+
 ## invariants.md (PHASE 3)
 
 ```md
-# Economic Invariants
+# Invariants
 
 ## INV-001 — <name>
 - Definition: 
@@ -70,6 +158,19 @@ Authorization is required for **live state-changing exploitation only**. It is *
 - WHO CAN INFLUENCE: 
 - ACTUALLY ENFORCED?: yes / no / partial
 - Enforcement point: 
+```
+
+Cover, where relevant: ownership, authorization, accounting, conservation,
+solvency, collateralization, monotonicity, lifecycle, expiry/epoch,
+uniqueness, state-machine, cross-contract consistency, and upgrade/migration
+invariants. If the target genuinely has no meaningful invariants in a
+category, do not invent one — but do not skip the phase silently either.
+Replace the body with an explicit rationale instead:
+
+```md
+## No Applicable Invariants
+<explicit reasoning for why no meaningful invariant applies — this itself
+satisfies scripts/gate_check.sh's Phase 3 completion check>
 ```
 
 ## assumptions.md (PHASE 4)

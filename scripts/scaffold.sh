@@ -11,11 +11,6 @@ RESEARCH="$TARGET/research"
 mkdir -p "$RESEARCH/experiments"
 
 for f in \
-  architecture.md \
-  asset-flows.md \
-  trust-boundaries.md \
-  deployment.md \
-  invariants.md \
   assumptions.md \
   killed.md \
   survivors.md \
@@ -24,6 +19,92 @@ for f in \
     : > "$RESEARCH/$f"
   fi
 done
+
+# architecture.md / asset-flows.md / trust-boundaries.md — PHASE 1. Seeded
+# with the required section headers (empty bodies) so scripts/gate_check.sh
+# can mechanically tell "skeleton" apart from "filled in".
+if [ ! -f "$RESEARCH/architecture.md" ]; then
+  cat > "$RESEARCH/architecture.md" <<'EOF'
+## Contracts & Components
+
+## Entry Points
+
+## Privileged Functions & Upgrade Paths
+
+## External Dependencies & Callback Surfaces
+
+## Actor → Entry → Check → State → Effect Traces
+EOF
+fi
+
+if [ ! -f "$RESEARCH/asset-flows.md" ]; then
+  cat > "$RESEARCH/asset-flows.md" <<'EOF'
+## Assets In
+
+## Assets Out
+
+## Custody & Accounting Transitions
+
+## Mint / Burn / Claim / Redemption Paths
+
+## Attacker-Controlled Inputs Affecting Value
+EOF
+fi
+
+if [ ! -f "$RESEARCH/trust-boundaries.md" ]; then
+  cat > "$RESEARCH/trust-boundaries.md" <<'EOF'
+## Actors & Authorities
+
+## Actor → Entry Point → Check → Internal Call → State Write → Effect Traces
+
+## Normal / Emergency / Recovery / Upgrade / Migration Paths
+EOF
+fi
+
+# deployment.md — PHASE 2. Canonical home for deployment facts; do not bury
+# them in architecture.md or elsewhere.
+if [ ! -f "$RESEARCH/deployment.md" ]; then
+  cat > "$RESEARCH/deployment.md" <<'EOF'
+Capability | Contract/Address | Status
+--- | --- | ---
+<feature> | 0x... | ACTIVE / INACTIVE / UNKNOWN / UNVERIFIED
+
+## Missing / unavailable evidence
+EOF
+fi
+
+# invariants.md — PHASE 3, mandatory. Fill in INV-### entries, or replace the
+# body with an explicit "## No Applicable Invariants" rationale if the target
+# genuinely has no meaningful invariants — never leave it empty.
+if [ ! -f "$RESEARCH/invariants.md" ]; then
+  cat > "$RESEARCH/invariants.md" <<'EOF'
+## INV-001 — <name>
+- Definition:
+- WHERE CREATED: file:line
+- WHERE ASSUMED: file:line
+- WHERE CAN CHANGE: file:line
+- WHO CAN INFLUENCE:
+- ACTUALLY ENFORCED?: yes / no / partial
+- Enforcement point:
+EOF
+fi
+
+# leads.md — pending lead queue. A lead observed during reconstruction is
+# recorded here (OBSERVED -> QUEUED) and left for Phase 5+, never chased
+# immediately. See "Discovery during reconstruction" in SKILL.md.
+if [ ! -f "$RESEARCH/leads.md" ]; then
+  cat > "$RESEARCH/leads.md" <<'EOF'
+# Pending Leads
+
+ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
+---|---|---|---|---|---
+
+Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED
+Never: OBSERVED -> EXPLOIT. A lead may only become HYPOTHESIS once
+scripts/gate_check.sh reports the Hypothesis Generation Gate as OPEN, and
+only after answering the anti-anchoring questions in SKILL.md.
+EOF
+fi
 
 # scope.md — seeded with the authorization & research-environment header.
 # Default: Authorization UNKNOWN, env READ_ONLY_PRODUCTION, live exploitation NO.
@@ -113,3 +194,7 @@ fi
 
 echo "Ragnarok research state initialized at $RESEARCH"
 ls -R "$RESEARCH"
+echo
+echo "Before hypothesis generation (PHASE 5), run:"
+echo "  scripts/gate_check.sh $RESEARCH"
+echo "Do not advance until it reports the Hypothesis Generation Gate as OPEN."
