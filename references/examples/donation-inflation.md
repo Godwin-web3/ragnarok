@@ -7,7 +7,7 @@ This file shows how dense artifacts should be. Copy the shape, not the sentences
 ## NOW.md (excerpt)
 
 ```
-Phase: 6
+Phase: 7
 Gate: OPEN
 Env: LOCAL_FORK
 Pin: hearth/hearth-vault@4f2c1aa
@@ -34,6 +34,19 @@ Owner     | msig  | 0xDDD | upgrade + pause | — | Vault
 Pairing        | Trace                                      | Invariant at risk
 Vault + Oracle | deposit() → totalAssets() → oracle.spot()  | INV-001 share value monotonic
 Vault + Token  | token.transfer on donate, no share mint    | INV-001
+```
+
+## Protocol model (excerpt)
+
+```
+ACT-001 Lender — Critical yes — PROM-001
+PROM-001 Shares redeemable for underlying
+  conditions: ASM-001
+  accounting: INV-001
+  transitions: ST-001 deposit→mint, ST-002 withdraw→burn
+  attacker influence: donate token then mint
+  falsification plan: eth_call convertToShares(1) after 1-wei donate
+ST-001 Who can trigger: any token holder
 ```
 
 ## H-001 (ranked)
