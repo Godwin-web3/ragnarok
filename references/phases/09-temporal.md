@@ -1,4 +1,4 @@
-# PHASE 9 — Temporal & state-machine
+# PHASE 10 — Temporal & state-machine
 
 For important machines `S0 → S1 → S2 → S3`:
 

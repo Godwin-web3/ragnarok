@@ -1,4 +1,4 @@
-# PHASE 6 — Experiment-first, one harness
+# PHASE 7 — Experiment-first, one harness
 
 Do not write long speculative explanations before testing.
 

@@ -1,4 +1,4 @@
-# PHASE 13 — Second-pass novelty
+# PHASE 14 — Second-pass novelty
 
 Do not repeat the first-pass checklist. Ask: what would an experienced protocol designer least expect an attacker to do?
 
