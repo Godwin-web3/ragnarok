@@ -27,6 +27,7 @@ done
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/gate_check.inc.sh
 . "$HERE/lib/gate_check.inc.sh"
+. "$HERE/lib/protocol_model_gate.inc.sh"
 
 check_phase0; P0_REASONS=("${REASONS[@]}")
 check_phase1; P1_REASONS=("${REASONS[@]}")
