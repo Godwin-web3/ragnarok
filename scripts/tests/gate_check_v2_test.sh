@@ -172,8 +172,8 @@ assert_contains "T13 names NOW.md" "$out" "NOW.md"
 d="$(mktemp -d "$WORKROOT/f.XXXXXX")"
 seed "$d"
 out="$(bash "$GATE" "$d/research")"; ec=$?
-assert_exit "T8b complete 0-4 opens the gate" 0 "$ec"
-assert_contains "T8b GATE OPEN" "$out" "Hypothesis Generation Gate (Phase 5+): OPEN"
+assert_exit "T8b complete 0-4 alone stays LOCKED (Phase 5 protocol model required)" 1 "$ec"
+assert_contains "T8b names Phase 5 missing" "$out" "protocol-model.md: MISSING/EMPTY"
 
 echo "==============================="
 echo "Passed: $PASS  Failed: $FAIL"

@@ -1,4 +1,4 @@
-# PHASE 12 — Primitive expansion
+# PHASE 13 — Primitive expansion
 
 When a vulnerability survives, stop treating it as a single bug. Name the primitive. Hunt every consumer of it on the map.
 

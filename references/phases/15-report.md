@@ -1,8 +1,8 @@
-# PHASE 15 — Final finding standard
+# PHASE 16 — Final finding standard
 
 A CONFIRMED finding needs, where technically possible: root cause, file:line on the pinned revision, preconditions, attacker sequence, authorization analysis, executable reproduction, before/after state, economic impact, realistic attacker requirements, deployment relevance, mitigation, falsification attempts.
 
-Buckets in `final.md`: CONFIRMED, INCONCLUSIVE, DESIGN RISK, PRIVILEGED RISK, FALSE POSITIVE, COVERAGE LIMITATION. Carry evidence levels forward. State whether a full Phase 8 composition pass ran and what it covered.
+Buckets in `final.md`: CONFIRMED, INCONCLUSIVE, DESIGN RISK, PRIVILEGED RISK, FALSE POSITIVE, COVERAGE LIMITATION. Carry evidence levels forward. State whether a full Phase 9 composition pass ran and what it covered.
 
 `report.md` contains CONFIRMED findings only. Run:
 

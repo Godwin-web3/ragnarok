@@ -1,4 +1,4 @@
-# PHASE 8 — Cross-contract composition (graph walk)
+# PHASE 9 — Cross-contract composition (graph walk)
 
 Assume A is correct, B is correct, C is correct. Can A+B+C still violate a protocol invariant?
 

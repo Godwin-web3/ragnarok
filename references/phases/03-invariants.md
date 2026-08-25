@@ -13,3 +13,5 @@ Cover where relevant: ownership, authorization, accounting, conservation, solven
 Do not invent economic invariants a protocol does not have. If none apply, write `## No Applicable Invariants` with a rationale. An empty file fails the gate.
 
 Each `INV-###` uses the seven fields in `references/templates.md`. No essays.
+
+Phase 5 will link these `INV-###` ids from `protocol-model.md` as accounting evidence. Do not restate the invariant there.

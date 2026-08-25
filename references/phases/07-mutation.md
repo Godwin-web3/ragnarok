@@ -1,4 +1,4 @@
-# PHASE 7 — Mutate before you kill the primitive
+# PHASE 8 — Mutate before you kill the primitive
 
 A failed attack does not automatically kill the underlying primitive. Record why it failed, then mutate inside the same harness:
 
