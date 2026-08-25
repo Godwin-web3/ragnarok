@@ -8,7 +8,7 @@ Prove it on a fork. Never guess. Never touch a live system. Never shrink the map
 
 <br/>
 
-`map` · `assume` · `rank` · `experiment` · `kill` · `expand` · `report`
+`map` · `assume` · `model` · `rank` · `experiment` · `kill` · `expand` · `report`
 
 </div>
 
@@ -50,14 +50,14 @@ scaffold → map/reconstruct → gate_check → hypotheses → experiments → r
 
 ```bash
 ./scripts/scaffold.sh <target-dir>
-# reconstruct Phases 0-4 on disk (wide map, traces, deployment, invariants, assumptions)
+# reconstruct Phases 0-5 on disk (wide map, traces, deployment, invariants, assumptions, protocol model)
 ./scripts/gate_check.sh <target-dir>/research
-# OPEN means Phases 0-4 are complete. LOCKED means return to the named phase.
+# OPEN means Phases 0-5 are complete. LOCKED means return to the named phase.
 # then ranked hypotheses and one campaign harness
 ./scripts/report_gate.sh <target-dir>/research
 ```
 
-`LOCKED` means reconstruction is not done — no hypothesis work. `OPEN` means Phases 0–4 are substantively complete.
+`LOCKED` means reconstruction is not done — no hypothesis work. `OPEN` means Phases 0–5 are substantively complete.
 
 On resume the agent reads `research/NOW.md` and `research/phase-state.md`, not the whole ledger and not the last chat.
 

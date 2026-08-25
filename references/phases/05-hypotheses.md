@@ -1,20 +1,24 @@
-# PHASE 5 — Ranked hypothesis generation
+# PHASE 6 — Ranked hypothesis generation
 
-Only after `scripts/gate_check.sh research/` reports OPEN.
+Only after `scripts/gate_check.sh research/` reports OPEN (Phases 0–5 complete).
 
-Do not enumerate SWC / OWASP / Slither categories. Generate architecture-derived hypotheses from broken invariants, cross-contract inconsistency, oracle/accounting, ordering, callbacks, upgrades, rounding, asset equivalence, composability, unexpected state combinations.
+Do not enumerate SWC / OWASP / Slither categories. Do not scan a checklist of attack primitives.
 
-Central question: **what can an attacker influence that makes an important assumption false?**
+Generate hypotheses from the protocol model. The generator question is:
+
+> Given these promises, state transitions, accounting relationships, and attacker capabilities, what transformation would cause a participant's expected claim to become greater than the system's ability to honor it?
+
+Each `H-###` names the `PROM-###` it tries to break. Architecture-derived classes (ordering, callbacks, upgrades, rounding, asset equivalence, composability) are *outputs* of that question, not a menu.
 
 ## Anti-anchoring (required before QUEUED → HYPOTHESIS)
 
-1. What exactly is suspicious?
-2. What security property could break?
+1. What promise is at risk (`PROM-###`)?
+2. What security property / accounting identity could break?
 3. What attacker capability is required?
-4. What state transition is affected?
+4. What state transition is affected (`ST-###`)?
 5. What prevents it today?
-6. What assumption must fail?
-7. Can that assumption actually fail?
+6. What required condition must fail (`ASM-###` / `COND-###`)?
+7. Can that condition actually fail on the deployment?
 8. What is the smallest falsifiable experiment?
 9. What evidence would kill it?
 

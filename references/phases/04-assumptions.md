@@ -17,3 +17,5 @@ Prioritize assumptions that cross boundaries: contract→contract, oracle→sour
 Leads discovered here go to `leads.md` as `OBSERVED`. Reasoning-only closures are `SELF_RESOLVED`, not `FALSIFIED`.
 
 This phase is part of the hypothesis gate. Do not skip it because the map felt finished.
+
+Phase 5 will link these `ASM-###` ids from `protocol-model.md`. Do not copy the assumption text into the model.
