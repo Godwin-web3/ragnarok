@@ -147,7 +147,7 @@ Never: OBSERVED -> EXPLOIT.
 
 FALSIFIED means an empirical check ran and failed. SELF_RESOLVED means the lead was closed by reasoning
 alone during reconstruction, no empirical check performed — not a weaker outcome, but a different one.
-PHASE 13 revisits every SELF_RESOLVED entry with fresh skepticism before final.md is written.
+PHASE 14 revisits every SELF_RESOLVED entry with fresh skepticism before final.md is written.
 ```
 
 Record every interesting-but-unverified observation here **immediately**,
@@ -199,7 +199,46 @@ satisfies scripts/gate_check.sh's Phase 3 completion check>
 - CROSSES BOUNDARY? (contract→contract, oracle→ext, accounting→token, ...): 
 ```
 
-## hypotheses.md (PHASE 5)
+## protocol-model.md (PHASE 5)
+
+```md
+# Protocol Model
+
+## ACT-001 — <participant who holds or honors a claim>
+- Critical?: yes / no   <!-- omit the field and it defaults to yes -->
+
+## PROM-001 — <statement the protocol makes to that actor>
+- Actor: ACT-001
+- Promise:
+- Required conditions: ASM-### (reuse from assumptions.md) or COND-### (defined below, with Provenance)
+- Accounting: INV-### (reuse from invariants.md) or ACC-### (defined below, with Variables)
+- State transitions: ST-### (defined below)
+- Enforcement:
+- Attacker influence:
+- Potential value transfer:
+- Falsification plan: <cheapest check that would show the promise is unhonored — storage read, one eth_call, one unit test. Not a runtime PoC.>
+
+## ST-001 — <named state transition>
+- Who can trigger:
+
+## ACC-001 — <accounting identity not already an INV-###>
+- Variables:
+
+## COND-001 — <required condition not already an ASM-###>
+- Provenance: SOURCE_VERIFIED / DEPLOYMENT_VERIFIED / RUNTIME_VERIFIED / ECONOMICALLY_VERIFIED / UNVERIFIED
+```
+
+Reuse `ASM-###` and `INV-###` by ID — do not restate their text here. If the target has no meaningful claims on value:
+
+```md
+## No Applicable Protocol Model
+<explicit reasoning for why no actor holds a claim this protocol could fail to honor —
+this itself satisfies scripts/gate_check.sh's Phase 5 completion check>
+```
+
+Full schema and gate properties: `references/schema/protocol-model.md`.
+
+## hypotheses.md (PHASE 6)
 
 ```md
 # Hypothesis Ledger
@@ -213,7 +252,7 @@ Evidence levels: SOURCE_VERIFIED | DEPLOYMENT_VERIFIED | RUNTIME_VERIFIED | ECON
 CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). SURVIVOR alone is a lead, not a finding.
 ```
 
-## killed.md (PHASE 7)
+## killed.md (PHASE 8)
 
 ```md
 # Killed Hypotheses
@@ -225,7 +264,7 @@ CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). S
 - Revisit if: <condition that would reopen it>
 ```
 
-## survivors.md (PHASE 12)
+## survivors.md (PHASE 13)
 
 ```md
 # Surviving Primitives
@@ -262,7 +301,7 @@ Status values:
 - Source↔deployment drift notes: <pinned source revision vs deployed version/config — divergence is a deployment-verification blocker>
 ```
 
-## report.md (PHASE 15) — disclosure-ready, CONFIRMED findings only
+## report.md (PHASE 16) — disclosure-ready, CONFIRMED findings only
 
 ```md
 # Ragnarok Finding Report
@@ -306,7 +345,7 @@ Status values:
 <is this reachable on the actual deployment? evidence level; note any deployment-verification blockers>
 
 ## Falsification Attempts
-<each attempt to kill the finding and why it survived — mandatory; see PHASE 11>
+<each attempt to kill the finding and why it survived — mandatory; see PHASE 12>
 
 ## Mitigation
 <concrete remediation options>

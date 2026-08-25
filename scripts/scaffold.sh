@@ -134,6 +134,27 @@ if [ ! -f "$RESEARCH/assumptions.md" ]; then
 EOF
 fi
 
+if [ ! -f "$RESEARCH/protocol-model.md" ]; then
+  cat > "$RESEARCH/protocol-model.md" <<'EOF'
+## ACT-001 — <participant who holds or honors a claim>
+- Critical?: yes / no
+
+## PROM-001 — <statement the protocol makes to that actor>
+- Actor: ACT-001
+- Promise:
+- Required conditions: ASM-### or COND-###
+- Accounting: INV-### or ACC-###
+- State transitions: ST-###
+- Enforcement:
+- Attacker influence:
+- Potential value transfer:
+- Falsification plan:
+
+## ST-001 — <named state transition>
+- Who can trigger:
+EOF
+fi
+
 if [ ! -f "$RESEARCH/leads.md" ]; then
   cat > "$RESEARCH/leads.md" <<'EOF'
 # Pending Leads
@@ -144,7 +165,7 @@ ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
 Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED / SELF_RESOLVED
 Never: OBSERVED -> EXPLOIT.
 FALSIFIED = an empirical check ran and failed. SELF_RESOLVED = closed by
-reasoning alone — revisit these in PHASE 13.
+reasoning alone — revisit these in PHASE 14.
 EOF
 fi
 
@@ -216,8 +237,8 @@ echo "Ragnarok research state initialized at $RESEARCH"
 ls -R "$RESEARCH"
 echo
 echo "Normal flow:"
-echo "  scaffold → map/reconstruct → gate_check → hypotheses → experiments → report_gate"
-echo "Before hypothesis generation (PHASE 5), run:"
+echo "  scaffold → map/reconstruct → protocol-model → gate_check → hypotheses → experiments → report_gate"
+echo "Before hypothesis generation (PHASE 6), run:"
 echo "  scripts/gate_check.sh $RESEARCH"
 echo "Before shipping report.md, run:"
 echo "  scripts/report_gate.sh $RESEARCH"

@@ -39,14 +39,25 @@ Vault + Token  | token.transfer on donate, no share mint    | INV-001
 ## Protocol model (excerpt)
 
 ```
-ACT-001 Lender — Critical yes — PROM-001
-PROM-001 Shares redeemable for underlying
-  conditions: ASM-001
-  accounting: INV-001
-  transitions: ST-001 deposit→mint, ST-002 withdraw→burn
-  attacker influence: donate token then mint
-  falsification plan: eth_call convertToShares(1) after 1-wei donate
-ST-001 Who can trigger: any token holder
+## ACT-001 Lender
+- Critical?: yes
+
+## PROM-001 Shares redeemable for underlying at spot rate
+- Actor: ACT-001
+- Promise: convertToAssets(shares) tracks real backing 1:1
+- Required conditions: ASM-001
+- Accounting: INV-001
+- State transitions: ST-001, ST-002
+- Enforcement: Vault._convertToAssets
+- Attacker influence: donate underlying directly, then mint
+- Potential value transfer: attacker's mint captures the donation; later depositor overpays
+- Falsification plan: eth_call convertToShares(1) after a 1-wei donation
+
+## ST-001 deposit -> mint
+- Who can trigger: any token holder
+
+## ST-002 withdraw -> burn
+- Who can trigger: any share holder
 ```
 
 ## H-001 (ranked)
