@@ -2,14 +2,14 @@
 # Ragnarok mechanical hypothesis gate.
 #
 # Inspects on-disk research/ artifacts (never conversation history) and
-# determines whether Phases 0-4 are COMPLETE and the hypothesis gate is OPEN.
+# determines whether Phases 0-5 are COMPLETE and the hypothesis gate is OPEN.
 #
 # Usage:
 #   scripts/gate_check.sh [research-dir]
 #   scripts/gate_check.sh [research-dir] --write
 #
 # Exit codes:
-#   0  gate OPEN  (Phases 0-4 COMPLETE) and no violation
+#   0  gate OPEN  (Phases 0-5 COMPLETE) and no violation
 #   1  gate LOCKED
 #   3  GATE VIOLATION (hypothesis/exploit work while LOCKED)
 set -u
@@ -33,6 +33,7 @@ check_phase1; P1_REASONS=("${REASONS[@]}")
 check_phase2; P2_REASONS=("${REASONS[@]}")
 check_phase3; P3_REASONS=("${REASONS[@]}")
 check_phase4; P4_REASONS=("${REASONS[@]}")
+check_phase5; P5_REASONS=("${REASONS[@]}")
 detect_violation
 
 PENDING_LEADS="$(count_pending_leads)"
@@ -47,6 +48,7 @@ P1_STATUS="$(phase_status P1_REASONS)"
 P2_STATUS="$(phase_status P2_REASONS)"
 P3_STATUS="$(phase_status P3_REASONS)"
 P4_STATUS="$(phase_status P4_REASONS)"
+P5_STATUS="$(phase_status P5_REASONS)"
 
 FIRST_BLOCKER=""
 [ "$P0_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="0"
@@ -54,6 +56,7 @@ FIRST_BLOCKER=""
 [ -z "$FIRST_BLOCKER" ] && [ "$P2_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="2"
 [ -z "$FIRST_BLOCKER" ] && [ "$P3_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="3"
 [ -z "$FIRST_BLOCKER" ] && [ "$P4_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="4"
+[ -z "$FIRST_BLOCKER" ] && [ "$P5_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="5"
 
 if [ -z "$FIRST_BLOCKER" ]; then
   GATE="OPEN"
@@ -88,8 +91,9 @@ build_report() {
   render_phase_line 2 "$P2_STATUS" P2_REASONS
   render_phase_line 3 "$P3_STATUS" P3_REASONS
   render_phase_line 4 "$P4_STATUS" P4_REASONS
+  render_phase_line 5 "$P5_STATUS" P5_REASONS
   echo
-  echo "Hypothesis Generation Gate (Phase 5+): $GATE"
+  echo "Hypothesis Generation Gate (Phase 6+): $GATE"
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
     echo
     echo "GATE VIOLATIONS DETECTED:"
