@@ -22,11 +22,7 @@ One idea is the spine: **a finding is not a finding until it is proven on a loca
 
 Ragnarok runs as a **single primary agent** with persistent on-disk research state. It does not fan out shallow scans. It optimizes for one thing: a novel, exploitable, economically real vulnerability against the *actual deployed* system.
 
-The method is chain-agnostic. Execution goes through an environment adapter (EVM: Foundry/Anvil is first-class).
-
 ## Reconstruction doctrine
-
-Novel DeFi bugs live in boundaries nobody put in the original picture. Ragnarok therefore **maps the whole live system** and only then dives.
 
 | Layer | Width | Depth | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -46,13 +42,22 @@ The map does not shrink. Experiments may be local to a seam. A lead that crosses
 
 ## How to use it
 
+Normal flow:
+
+```text
+scaffold → map/reconstruct → gate_check → hypotheses → experiments → report_gate
+```
+
 ```bash
 ./scripts/scaffold.sh <target-dir>
+# reconstruct Phases 0-4 on disk (wide map, traces, deployment, invariants, assumptions)
 ./scripts/gate_check.sh <target-dir>/research
+# OPEN means Phases 0-4 are complete. LOCKED means return to the named phase.
+# then ranked hypotheses and one campaign harness
 ./scripts/report_gate.sh <target-dir>/research
 ```
 
-`LOCKED` means reconstruction is not done. `OPEN` means Phases 0–4 are complete.
+`LOCKED` means reconstruction is not done — no hypothesis work. `OPEN` means Phases 0–4 are substantively complete.
 
 On resume the agent reads `research/NOW.md` and `research/phase-state.md`, not the whole ledger and not the last chat.
 
