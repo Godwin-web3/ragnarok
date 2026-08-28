@@ -1,12 +1,14 @@
 # PHASE 5 — Protocol model
 
-Mandatory. First-class phase. Part of the hypothesis gate.
+Mandatory for CAMPAIGN OPEN. Not a lock on Adversarial State Synthesis.
 
 Phases 3–4 produce raw ingredients: invariants and assumptions. This phase produces a second representation of the protocol — what it *promises*, under which conditions, through which state transitions, with which accounting identities.
 
 Do **not** create `economic-model.md`, `state-machine.md`, or `accounting-model.md`. One canonical file: `research/protocol-model.md`.
 
 `invariants.md` and `assumptions.md` remain evidence. They do not compete with this file. Link them by ID.
+
+Write or grow this file when a `CX-###` needs a named promise. Do not pause contradiction cards until this file is campaign-complete.
 
 ## Shape of a record
 
@@ -26,19 +28,17 @@ IDs: `ACT-###`, `PROM-###`, `COND-###`, `ST-###`, `ACC-###`. Reuse `ASM-###` and
 ## What this phase is not
 
 - Not deeper assumption mining.
-- Not a checklist of attack primitives (`invert trust`, `break accounting`, `reorder transaction`, …). Those become scanners.
+- Not a checklist of attack primitives. Those become scanners.
 - Not architecture prose. The map already exists.
-- Not runtime proof. A falsification *plan* here is the cheapest check that would show the promise is unhonored. Execution waits for Phase 6+.
+- Not runtime proof. A falsification *plan* here is the cheapest check that would show the promise is unhonored.
 
 ## Generator, not scanner
 
-After the model exists, Phase 6 asks one question of it:
+After a model exists, constructions still come from contradictions, not from a catalog:
 
-> Given these promises, state transitions, accounting relationships, and attacker capabilities, what transformation would cause a participant's expected claim to become greater than the system's ability to honor it?
+> Given these promises and representations, what impossible state would make a participant's expected claim greater than the system's ability to honor it?
 
-Different protocols yield different attacks. Do not pre-load a catalog.
-
-## Done when the structural gate passes
+## Done when the campaign gate passes
 
 The gate does not score essay length. It checks:
 
@@ -49,6 +49,6 @@ The gate does not score essay length. It checks:
 - every state transition names who can trigger it
 - every critical promise has a falsification plan
 
-If the target has no meaningful claims on value, write `## No Applicable Protocol Model` with a rationale. An empty file fails the gate.
+If the target has no meaningful claims on value, write `## No Applicable Protocol Model` with a rationale.
 
 Schema: `references/templates.md`. Density: `references/examples/donation-inflation.md`.
