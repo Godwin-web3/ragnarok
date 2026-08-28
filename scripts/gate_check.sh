@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# Ragnarok mechanical hypothesis gate.
+# Ragnarok mechanical gates (V3.5).
 #
-# Inspects on-disk research/ artifacts (never conversation history) and
-# determines whether Phases 0-5 are COMPLETE and the hypothesis gate is OPEN.
+# Imagination / SYNTHESIS gate: thin map + scope. Unlocks contradiction cards
+# and cheapest probes.
+# Campaign gate: Phases 0-5 complete. Marks full reconstruction. Does not lock
+# imagination.
 #
 # Usage:
 #   scripts/gate_check.sh [research-dir]
 #   scripts/gate_check.sh [research-dir] --write
 #
 # Exit codes:
-#   0  gate OPEN  (Phases 0-5 COMPLETE) and no violation
-#   1  gate LOCKED
-#   3  GATE VIOLATION (hypothesis/exploit work while LOCKED)
+#   0  SYNTHESIS OPEN and no violation
+#   1  SYNTHESIS LOCKED
+#   3  GATE VIOLATION (constructions / experiments while SYNTHESIS LOCKED)
 set -u
 
 RESEARCH="research"
@@ -30,14 +32,12 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$HERE/lib/protocol_model_gate.inc.sh"
 
 check_phase0; P0_REASONS=("${REASONS[@]}")
+check_thin_map; THIN_REASONS=("${REASONS[@]}")
 check_phase1; P1_REASONS=("${REASONS[@]}")
 check_phase2; P2_REASONS=("${REASONS[@]}")
 check_phase3; P3_REASONS=("${REASONS[@]}")
 check_phase4; P4_REASONS=("${REASONS[@]}")
 check_phase5; P5_REASONS=("${REASONS[@]}")
-detect_violation
-
-PENDING_LEADS="$(count_pending_leads)"
 
 phase_status() {
   local -n reasons_ref="$1"
@@ -45,35 +45,46 @@ phase_status() {
 }
 
 P0_STATUS="$(phase_status P0_REASONS)"
+THIN_STATUS="$(phase_status THIN_REASONS)"
 P1_STATUS="$(phase_status P1_REASONS)"
 P2_STATUS="$(phase_status P2_REASONS)"
 P3_STATUS="$(phase_status P3_REASONS)"
 P4_STATUS="$(phase_status P4_REASONS)"
 P5_STATUS="$(phase_status P5_REASONS)"
 
-FIRST_BLOCKER=""
-[ "$P0_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="0"
-[ -z "$FIRST_BLOCKER" ] && [ "$P1_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="1"
-[ -z "$FIRST_BLOCKER" ] && [ "$P2_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="2"
-[ -z "$FIRST_BLOCKER" ] && [ "$P3_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="3"
-[ -z "$FIRST_BLOCKER" ] && [ "$P4_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="4"
-[ -z "$FIRST_BLOCKER" ] && [ "$P5_STATUS" = "INCOMPLETE" ] && FIRST_BLOCKER="5"
-
-if [ -z "$FIRST_BLOCKER" ]; then
-  GATE="OPEN"
+if [ "$P0_STATUS" = "COMPLETE" ] && [ "$THIN_STATUS" = "COMPLETE" ]; then
+  SYNTHESIS="OPEN"
 else
-  GATE="LOCKED"
+  SYNTHESIS="LOCKED"
 fi
 
-if [ "$GATE" = "OPEN" ]; then
+CAMPAIGN_BLOCKER=""
+[ "$P0_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="0"
+[ -z "$CAMPAIGN_BLOCKER" ] && [ "$P1_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="1"
+[ -z "$CAMPAIGN_BLOCKER" ] && [ "$P2_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="2"
+[ -z "$CAMPAIGN_BLOCKER" ] && [ "$P3_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="3"
+[ -z "$CAMPAIGN_BLOCKER" ] && [ "$P4_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="4"
+[ -z "$CAMPAIGN_BLOCKER" ] && [ "$P5_STATUS" = "INCOMPLETE" ] && CAMPAIGN_BLOCKER="5"
+
+if [ -z "$CAMPAIGN_BLOCKER" ]; then
+  CAMPAIGN="OPEN"
+else
+  CAMPAIGN="LOCKED"
+fi
+
+detect_violation
+
+PENDING_LEADS="$(count_pending_leads)"
+
+if [ "$SYNTHESIS" = "OPEN" ]; then
   VIOLATIONS=()
 fi
 
 render_phase_line() {
   local num="$1" status="$2"
   local -n reasons_ref="$3"
-  if [ -n "$FIRST_BLOCKER" ] && [ "$num" -gt "$FIRST_BLOCKER" ]; then
-    echo "Phase $num: BLOCKED (upstream Phase $FIRST_BLOCKER incomplete)"
+  if [ -n "$CAMPAIGN_BLOCKER" ] && [ "$num" -gt "$CAMPAIGN_BLOCKER" ]; then
+    echo "Phase $num: BLOCKED (upstream Phase $CAMPAIGN_BLOCKER incomplete)"
     return
   fi
   echo "Phase $num: $status"
@@ -84,17 +95,24 @@ render_phase_line() {
 }
 
 build_report() {
-  echo "PHASE GATE CHECK"
+  echo "PHASE GATE CHECK (V3.5)"
   echo "generated: $(date -u +%Y-%m-%dT%H:%M:%SZ) (source of truth: research-state files, not conversation history)"
   echo
   render_phase_line 0 "$P0_STATUS" P0_REASONS
+  echo "Thin map: $THIN_STATUS"
+  local r
+  for r in "${THIN_REASONS[@]}"; do
+    echo "  $r"
+  done
   render_phase_line 1 "$P1_STATUS" P1_REASONS
   render_phase_line 2 "$P2_STATUS" P2_REASONS
   render_phase_line 3 "$P3_STATUS" P3_REASONS
   render_phase_line 4 "$P4_STATUS" P4_REASONS
   render_phase_line 5 "$P5_STATUS" P5_REASONS
   echo
-  echo "Hypothesis Generation Gate (Phase 6+): $GATE"
+  echo "Imagination Gate (Adversarial State Synthesis): $SYNTHESIS"
+  echo "Campaign Gate (full reconstruction, Phases 0-5): $CAMPAIGN"
+  echo "Hypothesis Generation Gate (Phase 6+): $CAMPAIGN"
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
     echo
     echo "GATE VIOLATIONS DETECTED:"
@@ -105,17 +123,22 @@ build_report() {
   fi
   echo
   echo "Action:"
-  if [ "$GATE" = "OPEN" ]; then
-    echo "GATE OPEN. Hypothesis generation, exploit construction, fuzzing, and deep"
-    echo "falsification of a specific lead are permitted."
+  if [ "$SYNTHESIS" = "OPEN" ]; then
+    echo "SYNTHESIS OPEN. Invent impossible states, write contradiction cards,"
+    echo "and run the cheapest probe. Do not wait for the campaign gate."
   else
-    echo "DO NOT ADVANCE to hypothesis generation, exploit construction, fuzzing, or"
-    echo "deep falsification of a specific lead."
-    echo "Return to Phase $FIRST_BLOCKER reconstruction."
+    echo "SYNTHESIS LOCKED. Finish Phase 0 and a thin map (component graph +"
+    echo "one trace) before inventing states or writing experiments."
+  fi
+  if [ "$CAMPAIGN" = "OPEN" ]; then
+    echo "CAMPAIGN OPEN. Wide reconstruction is on disk. Use it to widen the hunt."
+  else
+    echo "CAMPAIGN LOCKED on Phase ${CAMPAIGN_BLOCKER:-?}. Grow reconstruction when"
+    echo "a construction is blocked or before claiming the surface is exhausted."
   fi
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
-    echo "GATE VIOLATION: work occurred ahead of the gate. Revert/queue it and return"
-    echo "to reconstruction before continuing."
+    echo "GATE VIOLATION: constructions/experiments started before a thin map."
+    echo "Queue them and finish the thin map."
   fi
   echo "Pending leads preserved: $PENDING_LEADS"
 }
@@ -135,4 +158,4 @@ fi
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
   exit 3
 fi
-[ "$GATE" = "OPEN" ] && exit 0 || exit 1
+[ "$SYNTHESIS" = "OPEN" ] && exit 0 || exit 1

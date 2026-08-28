@@ -2,13 +2,13 @@
 
 # Ragnarok
 
-### An adversarial DeFi security research methodology
+### Contradiction-driven adversarial DeFi research
 
-Prove it on a fork. Never guess. Never touch a live system. Never shrink the map.
+Invent an impossible state. Reach it with valid calls. Prove it on a fork. Kill it if you cannot.
 
 <br/>
 
-`map` · `assume` · `model` · `rank` · `experiment` · `kill` · `expand` · `report`
+`map` · `represent` · `contradict` · `construct` · `witness` · `monetize` · `kill` · `expand`
 
 </div>
 
@@ -16,11 +16,22 @@ Prove it on a fork. Never guess. Never touch a live system. Never shrink the map
 
 ## What Ragnarok is
 
-**Ragnarok** is an experiment-first methodology for hunting — and honestly reporting — exploitable vulnerabilities in DeFi and smart-contract systems.
+**Ragnarok** hunts exploitable vulnerabilities in DeFi by inventing protocol states the designers probably never wrote down, then trying to walk into those states using only valid actions.
 
-One idea is the spine: **a finding is not a finding until it is proven on a local fork.** Speculation is never evidence. A live system is never exploited.
+It is not a vulnerability-category scanner. The unit of reasoning is the **impossible state**, not the named bug class.
 
-Ragnarok runs as a **single primary agent** with persistent on-disk research state. It does not fan out shallow scans. It optimizes for one thing: a novel, exploitable, economically real vulnerability against the *actual deployed* system.
+One rule still does not bend: **a finding is not a finding until it is proven on a local fork.** Speculation is never evidence. A live system is never exploited.
+
+Ragnarok runs as a **single primary agent** with persistent on-disk research state.
+
+## Core loop (V3.5)
+
+```
+PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
+→ VALID ACTION SEQUENCE → WITNESS → MONETIZATION → MUTATE → KILL → EXPAND
+```
+
+Thin map first. Invent states as soon as you know the live nodes and one trace. Expand the map when a construction is blocked. Do not write the whole reconstruction as homework before you are allowed to think.
 
 ## Reconstruction doctrine
 
@@ -28,9 +39,9 @@ Ragnarok runs as a **single primary agent** with persistent on-disk research sta
 | :--- | :--- | :--- | :--- |
 | Map | Every live component, asset, authority, external dep | Shallow, tabular | You cannot attack a node that is not on the graph |
 | Traces | Every class of boundary | Schematic | Value, privilege, upgrade, callback, oracle |
-| Dive | Cut-set of a live lead | Deep | Source, storage, deployment, experiment |
+| Dive | Cut-set of a live construction | Deep | Source, storage, deployment, experiment |
 
-The map does not shrink. Experiments may be local to a seam. A lead that crosses the current seam grows the dive — it is not discarded.
+The map does not shrink. Complete reconstruction is not a prerequisite for imagination.
 
 ## How it runs
 
@@ -42,51 +53,48 @@ The map does not shrink. Experiments may be local to a seam. A lead that crosses
 
 ## How to use it
 
-Normal flow:
-
 ```text
-scaffold → map/reconstruct → gate_check → hypotheses → experiments → report_gate
+scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states → cheapest probe
+         → expand map when blocked → one harness → kill → report_gate
 ```
 
 ```bash
 ./scripts/scaffold.sh <target-dir>
-# reconstruct Phases 0-5 on disk (wide map, traces, deployment, invariants, assumptions, protocol model)
+# Phase 0 + thin map (component graph + one trace)
 ./scripts/gate_check.sh <target-dir>/research
-# OPEN means Phases 0-5 are complete. LOCKED means return to the named phase.
-# then ranked hypotheses and one campaign harness
+# SYNTHESIS OPEN: write contradiction cards and probe
+# CAMPAIGN OPEN: full reconstruction is on disk — widen the hunt
 ./scripts/report_gate.sh <target-dir>/research
 ```
 
-`LOCKED` means reconstruction is not done — no hypothesis work. `OPEN` means Phases 0–5 are substantively complete.
-
-On resume the agent reads `research/NOW.md` and `research/phase-state.md`, not the whole ledger and not the last chat.
+On resume the agent reads `research/NOW.md` and `research/phase-state.md`.
 
 ## Persistent state
 
-`scripts/scaffold.sh` creates this tree once; every run after that appends to it:
-
 ```
 research/
-├── scope.md              # PHASE 0
-├── NOW.md                # hot resume card — always-on, rewritten each phase
-├── architecture.md       # PHASE 1
-├── asset-flows.md        # PHASE 1
-├── trust-boundaries.md   # PHASE 1
-├── deployment.md         # PHASE 2
-├── invariants.md         # PHASE 3
-├── assumptions.md        # PHASE 4
-├── protocol-model.md     # PHASE 5 — actors, promises, linked to ASM-###/INV-### by id
-├── leads.md              # pending-lead queue — written throughout Phases 1-5
-├── hypotheses.md         # PHASE 6 ledger
-├── experiments/          # PHASE 7
-├── killed.md             # PHASE 8
-├── survivors.md          # PHASE 13
-├── phase-state.md        # auto-generated by scripts/gate_check.sh — do not hand-edit
-├── final.md              # PHASE 15 — complete internal investigation record
-└── report.md             # PHASE 16 — disclosure-ready, CONFIRMED findings only
+├── scope.md
+├── NOW.md
+├── architecture.md
+├── asset-flows.md
+├── trust-boundaries.md
+├── deployment.md
+├── invariants.md
+├── assumptions.md
+├── protocol-model.md
+├── representations.md     # same fact, many ledgers
+├── contradictions.md      # invented impossible worlds
+├── leads.md
+├── hypotheses.md          # promoted constructions
+├── experiments/
+├── killed.md
+├── survivors.md
+├── phase-state.md
+├── final.md
+└── report.md
 ```
 
-Never delete a record — append `SUPERSEDED`, `REFINED`, or `KILLED` instead. Disk is canonical; conversation is not.
+Never delete a record — append `SUPERSEDED`, `REFINED`, or `KILLED`.
 
 ## Principles that never bend
 
@@ -97,6 +105,7 @@ Never delete a record — append `SUPERSEDED`, `REFINED`, or `KILLED` instead. D
 5. Kill your own findings when they do not hold up.
 6. Private until patched.
 7. The map is the system. Experiments may be local. The map may not shrink.
+8. Start from a contradiction, not from a vulnerability category.
 
 ## Author
 
