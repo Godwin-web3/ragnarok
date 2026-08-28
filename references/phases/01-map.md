@@ -1,10 +1,18 @@
-# PHASE 1 — Wide map + schematic traces
+# PHASE 1 — Map (thin first, wide when blocked)
 
 Do not start with vulnerability scanning. Do not write a novel.
 
-## Map (must be complete, must be shallow)
+## Thin map (unlocks imagination)
 
-Build `research/architecture.md` as a **graph**:
+Enough to invent states:
+
+- `architecture.md` component graph with real rows (live contracts you already know)
+- at least one actor→entry→effect trace **or** one composition pairing
+- `NOW.md` lists what is still unmapped / UNVERIFIED
+
+When that exists and Phase 0 is complete, SYNTHESIS OPEN. Invent impossible states. Do not wait for a finished model.
+
+## Wide map (complete eventually, not first)
 
 ```
 Component | Type | Address | Role | Trusts | Trusted by
@@ -12,23 +20,22 @@ Component | Type | Address | Role | Trusts | Trusted by
 
 Include every live contract, proxy, impl, factory, clone, library, token, oracle, keeper, governance, admin, external protocol, bridge, hook, strategy.
 
-Derive what you can from ABI, storage layout, compiler artifacts, deployment JSON. Annotate what tools cannot see.
+Grow the map when:
 
-Every address that later appears in `deployment.md` must already be a node, or you add it now.
+- a `CX-###` names a component that is not a node
+- a probe is blocked by an unknown dependency
+- you are about to claim the surface is exhausted
 
-## Traces (schematic, system-wide)
+## Traces
 
 - `asset-flows.md` — value in / out / custody / mint-burn-claim / attacker-controlled inputs.
-- `trust-boundaries.md` — actors, permission traces, emergency/upgrade/migration paths, **and at least one real composition trace**: "assume A, B, C are each correct; does A+B+C still hold the invariant?"
-
-Capability levels stay distinct: source-could / deployed-does / attacker-can-profit.
+- `trust-boundaries.md` — actors, permission traces, emergency/upgrade/migration paths, and composition pairings: "assume A, B, C are each correct; does A+B+C still hold?"
 
 ## Leads
 
-Interesting thing mid-map → `research/leads.md` as `OBSERVED`. Do not dive. Do not run experiments. Continue the map.
+Interesting thing mid-map → `research/leads.md` as `OBSERVED`. A construction that needs a missing node adds the node, then continues. Do not drop the node to keep the dive small.
 
-A lead that names a component not yet on the graph means the map is incomplete — add the node first.
+## Done-enough vs done
 
-## Done when
-
-Graph has every known live node, traces cover the boundary classes, one composition pairing is written down, `NOW.md` lists unmapped/UNVERIFIED explicitly.
+- Done-enough for SYNTHESIS: thin map.
+- Done for CAMPAIGN: graph has every known live node, traces cover the boundary classes, one composition pairing is written, deployment/invariants/assumptions/model exist.
