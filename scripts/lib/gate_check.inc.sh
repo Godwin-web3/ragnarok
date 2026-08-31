@@ -241,8 +241,48 @@ count_pending_leads() {
   '
 }
 
+check_thin_map() {
+  REASONS=()
+  local f="$RESEARCH/architecture.md"
+  if is_empty_file "$f"; then
+    REASONS+=("architecture.md: MISSING/EMPTY — thin map needs a component graph")
+    return
+  fi
+  if ! grep -qiE 'component[[:space:]]*\|' "$f"; then
+    REASONS+=("architecture.md: missing component graph table")
+  elif [ "$(grep -cE '^\s*[^|<][^|]*\|[^|]+\|[^|]+' "$f" || true)" -lt 3 ]; then
+    REASONS+=("architecture.md: component graph has no real rows")
+  fi
+  local traces flows bounds
+  traces="$(section_body "$f" 'actor.*entry|trace')"
+  flows="$RESEARCH/asset-flows.md"
+  bounds="$RESEARCH/trust-boundaries.md"
+  local has_trace=0
+  if ! is_placeholder_or_blank "$traces"; then
+    has_trace=1
+  fi
+  if [ -f "$flows" ] && ! is_empty_file "$flows"; then
+    local bin
+    bin="$(section_body "$flows" 'assets? in')"
+    if ! is_placeholder_or_blank "$bin"; then
+      has_trace=1
+    fi
+  fi
+  if [ -f "$bounds" ] && ! is_empty_file "$bounds"; then
+    local ct
+    ct="$(section_body "$bounds" 'composition|pairing|cross-?contract|actor|entry point')"
+    if ! is_placeholder_or_blank "$ct"; then
+      has_trace=1
+    fi
+  fi
+  if [ "$has_trace" -eq 0 ]; then
+    REASONS+=("thin map: need one actor-trace or one asset/composition trace")
+  fi
+}
+
 detect_violation() {
   VIOLATIONS=()
+  [ "${SYNTHESIS:-LOCKED}" = "OPEN" ] && return
   local hf="$RESEARCH/hypotheses.md"
   if [ -f "$hf" ]; then
     local rows row
@@ -253,6 +293,10 @@ detect_violation() {
         VIOLATIONS+=("hypotheses.md contains a non-placeholder entry: ${row:0:80}")
       fi
     done <<< "$rows"
+  fi
+  local cf="$RESEARCH/contradictions.md"
+  if [ -f "$cf" ] && grep -qE '^##+ *CX-[0-9]+' "$cf"; then
+    VIOLATIONS+=("contradictions.md contains CX-### cards before a thin map exists")
   fi
   local ed="$RESEARCH/experiments"
   if [ -d "$ed" ] && [ -n "$(find "$ed" -type f 2>/dev/null)" ]; then

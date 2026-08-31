@@ -1,28 +1,26 @@
-# PHASE 6 — Ranked hypothesis generation
-
-Only after `scripts/gate_check.sh research/` reports OPEN (Phases 0–5 complete).
+# Ranked constructions (from contradictions)
 
 Do not enumerate SWC / OWASP / Slither categories. Do not scan a checklist of attack primitives.
 
-Generate hypotheses from the protocol model. The generator question is:
+Generate `H-###` from `CX-###` cards that are REACHABLE or still live after a cheapest probe. The generator question is:
 
-> Given these promises, state transitions, accounting relationships, and attacker capabilities, what transformation would cause a participant's expected claim to become greater than the system's ability to honor it?
+> Given this impossible state, what valid sequence makes two representations of the same fact diverge, and who can extract the difference?
 
-Each `H-###` names the `PROM-###` it tries to break. Architecture-derived classes (ordering, callbacks, upgrades, rounding, asset equivalence, composability) are *outputs* of that question, not a menu.
+If a protocol model exists, also name the `PROM-###` at risk. If it does not exist yet, name the fact and the two representations. Do not delay a live construction until the campaign gate opens.
 
-## Anti-anchoring (required before QUEUED → HYPOTHESIS)
+## Anti-anchoring (required before CX → H)
 
-1. What promise is at risk (`PROM-###`)?
-2. What security property / accounting identity could break?
-3. What attacker capability is required?
-4. What state transition is affected (`ST-###`)?
+1. What impossible state is claimed (`CX-###`)?
+2. Which two representations of which fact diverge (`FACT-###`)?
+3. What promise is at risk (`PROM-###` if modeled)?
+4. What attacker capability is required?
 5. What prevents it today?
-6. What required condition must fail (`ASM-###` / `COND-###`)?
-7. Can that condition actually fail on the deployment?
-8. What is the smallest falsifiable experiment?
-9. What evidence would kill it?
+6. Can that prevention fail on the deployment?
+7. What is the smallest falsifiable experiment?
+8. What evidence would kill it?
+9. Who monetizes, and against whom?
 
-A hypothesis is a concrete state transition, not "could potentially."
+A hypothesis is a concrete reachable state plus a witness, not "could potentially."
 
 ## Rank before you fork
 
@@ -36,4 +34,4 @@ Record `RANK` and `CHEAPEST FALSIFIER` on the ledger row. Run the cheapest falsi
 
 Statuses: `UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED`.
 CONFIRMED = RUNTIME_VERIFIED effect + ECONOMICALLY_VERIFIED impact.
-Keep `leads.md` in sync.
+Keep `leads.md` and `contradictions.md` in sync.
