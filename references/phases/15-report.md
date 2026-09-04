@@ -1,8 +1,8 @@
-# PHASE 16 — Final finding standard
+# PHASE 15 — Report
 
 A CONFIRMED finding needs, where technically possible: root cause, file:line on the pinned revision, preconditions, attacker sequence, authorization analysis, executable reproduction, before/after state, economic impact, realistic attacker requirements, deployment relevance, mitigation, falsification attempts.
 
-Buckets in `final.md`: CONFIRMED, INCONCLUSIVE, DESIGN RISK, PRIVILEGED RISK, FALSE POSITIVE, COVERAGE LIMITATION. Carry evidence levels forward. State whether a full Phase 9 composition pass ran and what it covered.
+Buckets in `final.md`: CONFIRMED, INCONCLUSIVE, DESIGN RISK, PRIVILEGED RISK, FALSE POSITIVE, COVERAGE LIMITATION. Carry evidence levels forward.
 
 `report.md` contains CONFIRMED findings only. Run:
 
@@ -19,6 +19,8 @@ If nothing is CONFIRMED, `report.md` is exactly:
 ```
 
 That is a valid deliverable. Do not promote a SURVIVOR to fill the template.
+
+If this is a bounty, also load `references/bounty.md` before submitting.
 
 ## Finding template (CONFIRMED only)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ragnarok mechanical gates (V3.5).
+# Ragnarok mechanical gates (V4).
 #
 # Imagination / SYNTHESIS gate: thin map + scope. Unlocks contradiction cards
 # and cheapest probes.
@@ -95,7 +95,7 @@ render_phase_line() {
 }
 
 build_report() {
-  echo "PHASE GATE CHECK (V3.5)"
+  echo "PHASE GATE CHECK (V4)"
   echo "generated: $(date -u +%Y-%m-%dT%H:%M:%SZ) (source of truth: research-state files, not conversation history)"
   echo
   render_phase_line 0 "$P0_STATUS" P0_REASONS
@@ -112,7 +112,6 @@ build_report() {
   echo
   echo "Imagination Gate (Adversarial State Synthesis): $SYNTHESIS"
   echo "Campaign Gate (full reconstruction, Phases 0-5): $CAMPAIGN"
-  echo "Hypothesis Generation Gate (Phase 6+): $CAMPAIGN"
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
     echo
     echo "GATE VIOLATIONS DETECTED:"

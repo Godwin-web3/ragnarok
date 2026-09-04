@@ -1,5 +1,8 @@
 # EVM adapter — lookup table
 
+Mechanical wrapper: `scripts/probe_evm.sh` (identity, proxy, owner, balances, oracle).
+One harness: `scripts/harness_init.sh`.
+
 Commands, not essays. Use against READ_ONLY_PRODUCTION or a local Anvil fork. Never send a production tx unless AUTHORIZED_LIVE.
 
 Replace `$RPC`, `$ADDR`, `$IMPL`, `$FORK_RPC`, `$BLOCK`, `$WHO`.
@@ -64,7 +67,7 @@ deal(token, attacker, amount);
 
 ## Behavior check vs address match
 
-Address in `deployments.json` is step one. For an oracle / precompile / registry, submit a **self-generated** vector (`eth_call`) and record the result. If you cannot, mark UNVERIFIED.
+Address in `deployments.json` is step one. For an oracle / precompile / registry, submit a self-generated vector (`eth_call`) and record the result. If you cannot, mark UNVERIFIED.
 
 ## Campaign harness skeleton
 

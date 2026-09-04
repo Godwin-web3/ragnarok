@@ -11,6 +11,9 @@ mkdir -p "$RESEARCH/experiments"
 
 for f in \
   assumptions.md \
+  representations.md \
+  contradictions.md \
+  coverage.md \
   killed.md \
   survivors.md \
   final.md; do
@@ -165,7 +168,7 @@ ID | LOCATION | OBSERVATION | INITIAL CONFIDENCE | INITIAL IMPACT | STATUS
 Status lifecycle: OBSERVED -> QUEUED -> HYPOTHESIS -> TESTING -> CONFIRMED / FALSIFIED / SELF_RESOLVED
 Never: OBSERVED -> EXPLOIT.
 FALSIFIED = an empirical check ran and failed. SELF_RESOLVED = closed by
-reasoning alone — revisit these in PHASE 14.
+reasoning alone. Revisit before final.md. Probe as soon as SYNTHESIS is OPEN.
 EOF
 fi
 
@@ -197,7 +200,7 @@ if [ ! -f "$RESEARCH/scope.md" ]; then
 
 ## Prior scrutiny
 - Known audit reports (firm, date, commit/version scoped):
-- Bounty program "Known Issues" / exclusions list:
+- Bounty program Known Issues / exclusions list:
 - Prior disclosed vulnerabilities for this target:
 
 ## Deployment
@@ -233,12 +236,51 @@ if [ ! -f "$RESEARCH/report.md" ]; then
 EOF
 fi
 
+if [ ! -f "$RESEARCH/representations.md" ]; then
+  cat > "$RESEARCH/representations.md" <<'EOF'
+# Representations
+
+FACT-001 | <fact>
+Component | Representation
+--- | ---
+EOF
+fi
+
+if [ ! -f "$RESEARCH/contradictions.md" ]; then
+  cat > "$RESEARCH/contradictions.md" <<'EOF'
+# Contradictions
+
+## CX-001 — <impossible world>
+- STATE:
+- CONTRADICTION:
+- CONSTRUCTION:
+- SEQUENCE:
+- WITNESS:
+- MONETIZATION:
+- BLOCKED BY:
+- STATUS: INVENTED
+EOF
+fi
+
+if [ ! -f "$RESEARCH/coverage.md" ]; then
+  cat > "$RESEARCH/coverage.md" <<'EOF'
+# Coverage
+
+- Files opened:
+- Paths traced:
+- CX cards written:
+- H-### tested:
+- Surfaces not covered:
+- SELF_RESOLVED pending empirical check:
+EOF
+fi
+
 echo "Ragnarok research state initialized at $RESEARCH"
 ls -R "$RESEARCH"
 echo
 echo "Normal flow:"
-echo "  scaffold → map/reconstruct → protocol-model → gate_check → hypotheses → experiments → report_gate"
-echo "Before hypothesis generation (PHASE 6), run:"
+echo "  scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states → probe → kill → report_gate"
+echo "After a thin map, run:"
 echo "  scripts/gate_check.sh $RESEARCH"
 echo "Before shipping report.md, run:"
 echo "  scripts/report_gate.sh $RESEARCH"
