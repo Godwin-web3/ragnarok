@@ -25,13 +25,14 @@ A hypothesis is a concrete reachable state plus a witness, not "could potentiall
 ## Rank before you fork
 
 ```
-P1 = permissionless AND capability ACTIVE AND capital/liquidity plausible
+P1 = permissionless AND capability ACTIVE AND capital/flashloan plausible AND same-tx or durable AND exit liquidity AND CLASS EXTRACT
 P2 = missing exactly one of those
-P3 = speculative / privileged / INACTIVE / UNVERIFIED-blocked
+P3 = GRIEF / PRIVILEGED / speculative / INACTIVE / UNVERIFIED-blocked
 ```
 
-Record `RANK` and `CHEAPEST FALSIFIER` on the ledger row. Run the cheapest falsifier (storage read, `eth_call`, unit test) before a scenario test.
+Record `RANK`, `CHEAPEST FALSIFIER`, and `CLASS` on the ledger row. Run the cheapest falsifier (storage read, `eth_call`, unit test) before a scenario test. Record the result on the CX card before inventing another live card.
 
-Statuses: `UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED`.
-CONFIRMED = RUNTIME_VERIFIED effect + ECONOMICALLY_VERIFIED impact.
+Statuses: `UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED`.
+CONFIRMED = RUNTIME_VERIFIED effect + ECONOMICALLY_VERIFIED EXTRACT impact.
+GRIEF and PRIVILEGED never sit in the permissionless CONFIRMED queue.
 Keep `leads.md` and `contradictions.md` in sync.

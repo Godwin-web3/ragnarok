@@ -1,7 +1,9 @@
 # EVM adapter — lookup table
 
 Mechanical wrapper: `scripts/probe_evm.sh` (identity, proxy, owner, balances, oracle).
-One harness: `scripts/harness_init.sh`.
+One campaign harness: `scripts/harness_init.sh`.
+CX witness: `scripts/harness_init.sh <target> --cx CX-001`.
+CX invariant fuzz: `scripts/harness_init.sh <target> --invariant CX-001` (see `references/invariant-fuzz.md`).
 
 Commands, not essays. Use against READ_ONLY_PRODUCTION or a local Anvil fork. Never send a production tx unless AUTHORIZED_LIVE.
 
@@ -72,3 +74,6 @@ Address in `deployments.json` is step one. For an oracle / precompile / registry
 ## Campaign harness skeleton
 
 `research/experiments/Campaign.t.sol` — one `setUp()` fork, one function per hypothesis, `vm.snapshot` / `vm.revertTo` between mutations.
+
+`CX###_witness.t.sol` — asserts invented STATE and that MONETIZATION moves value.
+`CX###_invariant.t.sol` — handlers try to walk into that STATE.

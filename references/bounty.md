@@ -35,7 +35,7 @@ Before promoting CX to H:
 2. Did a public audit already name this exact path at this commit?
 3. Is the impact only admin-can-rug when admin is trusted by the program?
 
-If yes, kill or bucket as PRIVILEGED RISK / DESIGN RISK. Do not put it in `report.md`.
+If yes, kill or bucket as PRIVILEGED RISK / DESIGN RISK / GRIEF. Do not put it in `report.md`. `CLASS: GRIEF` and `CLASS: PRIVILEGED` cannot occupy the permissionless CONFIRMED queue.
 
 ## Report that a triage team can pay
 

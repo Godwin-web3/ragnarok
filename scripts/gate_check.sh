@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Ragnarok mechanical gates (V4).
+# Ragnarok mechanical gates (V5).
 #
 # Imagination / SYNTHESIS gate: thin map + scope. Unlocks contradiction cards
 # and cheapest probes.
 # Campaign gate: Phases 0-5 complete. Marks full reconstruction. Does not lock
 # imagination.
+# Hunt discipline (V5, only when SYNTHESIS OPEN and CX cards exist):
+#   focus lock, assertable witness, early composition pairing,
+#   REACHABLE → invariant mapping, killed.md reopen on map growth.
 #
 # Usage:
 #   scripts/gate_check.sh [research-dir]
@@ -13,7 +16,7 @@
 # Exit codes:
 #   0  SYNTHESIS OPEN and no violation
 #   1  SYNTHESIS LOCKED
-#   3  GATE VIOLATION (constructions / experiments while SYNTHESIS LOCKED)
+#   3  GATE VIOLATION (pre-map constructions, or V5 hunt-discipline break)
 set -u
 
 RESEARCH="research"
@@ -30,6 +33,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/gate_check.inc.sh
 . "$HERE/lib/gate_check.inc.sh"
 . "$HERE/lib/protocol_model_gate.inc.sh"
+. "$HERE/lib/cx_cards.inc.sh"
 
 check_phase0; P0_REASONS=("${REASONS[@]}")
 check_thin_map; THIN_REASONS=("${REASONS[@]}")
@@ -80,6 +84,26 @@ if [ "$SYNTHESIS" = "OPEN" ]; then
   VIOLATIONS=()
 fi
 
+HUNT_VIOLATIONS=()
+FOCUS_LIVE=()
+FOCUS_PROBES=()
+FOCUS_UNRESOLVED=()
+COMPOSITION_CARDS=()
+SOFT_WITNESS_INVENTED=()
+REOPEN_ITEMS=()
+LIVE_COUNT=0
+PROBE_COUNT=0
+UNRESOLVED_PROBE_COUNT=0
+FOCUS_STATUS="HOLD"
+COMPOSITION_STATUS="PENDING"
+check_hunt_discipline
+if [ "$SYNTHESIS" = "OPEN" ] && [ "${#HUNT_VIOLATIONS[@]}" -gt 0 ]; then
+  local_v=""
+  for local_v in "${HUNT_VIOLATIONS[@]}"; do
+    VIOLATIONS+=("$local_v")
+  done
+fi
+
 render_phase_line() {
   local num="$1" status="$2"
   local -n reasons_ref="$3"
@@ -95,7 +119,7 @@ render_phase_line() {
 }
 
 build_report() {
-  echo "PHASE GATE CHECK (V4)"
+  echo "PHASE GATE CHECK (V5)"
   echo "generated: $(date -u +%Y-%m-%dT%H:%M:%SZ) (source of truth: research-state files, not conversation history)"
   echo
   render_phase_line 0 "$P0_STATUS" P0_REASONS
@@ -112,6 +136,24 @@ build_report() {
   echo
   echo "Imagination Gate (Adversarial State Synthesis): $SYNTHESIS"
   echo "Campaign Gate (full reconstruction, Phases 0-5): $CAMPAIGN"
+  echo "Focus lock: ${FOCUS_STATUS:-HOLD}  live ${LIVE_COUNT:-0}/2  probes ${PROBE_COUNT:-0}/1  unresolved ${UNRESOLVED_PROBE_COUNT:-0}"
+  if [ "${#FOCUS_LIVE[@]}" -gt 0 ]; then
+    echo "  live: ${FOCUS_LIVE[*]}"
+  fi
+  echo "Early composition pairing: ${COMPOSITION_STATUS:-PENDING}"
+  if [ "${#COMPOSITION_CARDS[@]}" -gt 0 ]; then
+    echo "  pairing CX: ${COMPOSITION_CARDS[*]}"
+  fi
+  if [ "${#SOFT_WITNESS_INVENTED[@]}" -gt 0 ]; then
+    echo "  soft WITNESS (stays INVENTED, cannot PROBING): ${SOFT_WITNESS_INVENTED[*]}"
+  fi
+  if [ "${#REOPEN_ITEMS[@]}" -gt 0 ]; then
+    echo "Reopen queue (map grew; killed.md is not permanently dead):"
+    local item
+    for item in "${REOPEN_ITEMS[@]}"; do
+      echo "  - $item"
+    done
+  fi
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
     echo
     echo "GATE VIOLATIONS DETECTED:"
@@ -123,8 +165,10 @@ build_report() {
   echo
   echo "Action:"
   if [ "$SYNTHESIS" = "OPEN" ]; then
-    echo "SYNTHESIS OPEN. Invent impossible states, write contradiction cards,"
-    echo "and run the cheapest probe. Do not wait for the campaign gate."
+    echo "SYNTHESIS OPEN. Invent impossible states from references/shapes.md,"
+    echo "write contradiction cards with assertable WITNESS expressions, and"
+    echo "run the cheapest probe. First (or equal-first) card must be a pairing CX."
+    echo "Max 2 live CX. Max 1 open probe. Do not wait for the campaign gate."
   else
     echo "SYNTHESIS LOCKED. Finish Phase 0 and a thin map (component graph +"
     echo "one trace) before inventing states or writing experiments."
@@ -136,8 +180,8 @@ build_report() {
     echo "a construction is blocked or before claiming the surface is exhausted."
   fi
   if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
-    echo "GATE VIOLATION: constructions/experiments started before a thin map."
-    echo "Queue them and finish the thin map."
+    echo "GATE VIOLATION. Do not invent CX-N+1, promote a prose WITNESS, or skip"
+    echo "the pairing card. If constructions started before a thin map, queue them."
   fi
   echo "Pending leads preserved: $PENDING_LEADS"
 }
@@ -152,6 +196,15 @@ if [ "$WRITE" -eq 1 ]; then
     echo
     printf '%s\n' "$REPORT"
   } > "$RESEARCH/phase-state.md"
+  queue_reopen_leads
+  write_map_stamp
+  if [ -f "$RESEARCH/NOW.md" ]; then
+    if grep -qE '^-?\s*Focus lock:' "$RESEARCH/NOW.md"; then
+      :
+    else
+      printf '\n- Focus lock: live %s/2, probes %s/1, unresolved %s\n' "${LIVE_COUNT:-0}" "${PROBE_COUNT:-0}" "${UNRESOLVED_PROBE_COUNT:-0}" >> "$RESEARCH/NOW.md"
+    fi
+  fi
 fi
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then

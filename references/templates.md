@@ -152,10 +152,9 @@ PHASE 14 revisits every SELF_RESOLVED entry with fresh skepticism before final.m
 
 Record every interesting-but-unverified observation here **immediately**,
 then return to the reconstruction phase you were in. Do not investigate a
-lead deeply until `scripts/gate_check.sh` reports the Hypothesis Generation
-Gate as OPEN — and even then, a lead is promoted OBSERVED/QUEUED →
-HYPOTHESIS only after it has answered the anti-anchoring questions (see
-SKILL.md, "Anti-Anchoring — Discovery ≠ Validation").
+lead deeply until `scripts/gate_check.sh` reports SYNTHESIS OPEN — and even
+then, a lead is promoted OBSERVED/QUEUED → HYPOTHESIS only after it has
+answered the anti-anchoring questions. Max 2 live CX. Max 1 open probe.
 
 ## invariants.md (PHASE 3)
 
@@ -238,6 +237,30 @@ this itself satisfies scripts/gate_check.sh's Phase 5 completion check>
 
 Full schema and gate properties: `references/schema/protocol-model.md`.
 
+## contradictions.md (after SYNTHESIS OPEN)
+
+```md
+# Contradictions
+
+## CX-001 — <impossible world>
+- STATE:
+- CONTRADICTION:
+- PAIRING: Vault ↔ Oracle
+- CONSTRUCTION:
+- SEQUENCE:
+- WITNESS: token.balanceOf(vault) < convertToAssets(totalSupply)
+- MONETIZATION: attacker convertToAssets after mint exceeds deposit
+- CHEAPEST FALSIFIER: eth_call convertToShares(1)
+- FALSIFIER RESULT: unrecorded
+- HANDLERS: deposit, withdraw, donate
+- INVARIANT HARNESS: research/experiments/CX001_invariant.t.sol
+- CLASS: EXTRACT / GRIEF / PRIVILEGED / UNKNOWN
+- BLOCKED BY:
+- STATUS: INVENTED
+```
+
+WITNESS must be assertable. Prose stays INVENTED. At least one card is a PAIRING. Max 2 live. Max 1 PROBING.
+
 ## hypotheses.md (PHASE 6)
 
 ```md
@@ -247,9 +270,9 @@ ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EF
 ---|---|---|---|---|---|---|---|---|---
 H-001 | ... | ... | ... | ... | ... | ... | research/experiments/H-001 | SOURCE_VERIFIED | UNTESTED
 
-Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
+Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED
 Evidence levels: SOURCE_VERIFIED | DEPLOYMENT_VERIFIED | RUNTIME_VERIFIED | ECONOMICALLY_VERIFIED
-CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). SURVIVOR alone is a lead, not a finding.
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT. SURVIVOR alone is a lead, not a finding. GRIEF / PRIVILEGED never occupy this CONFIRMED cell.
 ```
 
 ## killed.md (PHASE 8)
@@ -261,8 +284,10 @@ CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact). S
 - Why it failed: 
 - Mutations attempted (ordering, caller, entry, asset, amount, timing, state, deps, repetition, composition): 
 - Why the primitive (if any) is NOT recoverable via this path: 
-- Revisit if: <condition that would reopen it>
+- Revisit if: settleFrom()   <!-- name an entrypoint() or node; map growth queues this -->
 ```
+
+Kills are not permanently dead. When `architecture.md` gains a node or entrypoint, `scripts/gate_check.sh --write` queues every `- Revisit if:` line.
 
 ## survivors.md (PHASE 13)
 
@@ -337,6 +362,12 @@ Status values:
 
 ## Economic Impact
 <attacker profit, protocol/victim loss, capital/liquidity/gas required, repeatability — ECONOMICALLY_VERIFIED delta>
+- FLASHLOANABLE / CAPITAL:
+- SAME-TX ATOMICITY:
+- EXIT LIQUIDITY:
+- MEV / KEEPER RACE:
+- CLASS: EXTRACT
+
 
 ## Attacker Requirements
 <capital, liquidity, gas, tokens, access, time; whether permissionless>

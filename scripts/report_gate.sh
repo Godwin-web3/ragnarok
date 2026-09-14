@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Ragnarok report gate.
+# Ragnarok report gate (V5).
 #
 # A finding may appear in research/report.md only when the ledger says
 # CONFIRMED, the effect is RUNTIME_VERIFIED, the impact is
-# ECONOMICALLY_VERIFIED, a falsification attempt is recorded, and a
-# harness file exists. Otherwise report.md must be the honest empty report.
+# ECONOMICALLY_VERIFIED EXTRACT (not GRIEF/PRIVILEGED), harsher economic
+# checks are recorded (flashloan/capital, same-tx atomicity, exit liquidity,
+# MEV/keeper race), a falsification attempt is recorded, and a harness file
+# exists. Otherwise report.md must be the honest empty report.
 #
 # Usage:
 #   scripts/report_gate.sh [research-dir]
@@ -116,6 +118,36 @@ else
       REASONS+=("report.md: '$sec' section missing or placeholder")
     fi
   done
+
+  econ="$(section_body "$REPORT" 'economic impact')"
+  class=""
+  class="$(printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -iE 'CLASS:' | head -1 | sed -E 's/^[^:]*:[[:space:]]*//' || true)"
+  if printf '%s' "$class" | grep -qiE 'GRIEF'; then
+    REASONS+=("CLASS: GRIEF cannot enter the permissionless CONFIRMED queue — bucket it, do not report")
+  fi
+  if printf '%s' "$class" | grep -qiE 'PRIVILEGED'; then
+    REASONS+=("CLASS: PRIVILEGED cannot enter the permissionless CONFIRMED queue — bucket PRIVILEGED RISK")
+  fi
+  if [ -z "$(printf '%s' "$class" | tr -d '[:space:]')" ]; then
+    if printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -qiE '\bGRIEF\b'; then
+      REASONS+=("finding tagged GRIEF cannot be CONFIRMED permissionless")
+    elif printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -qiE '\bPRIVILEGED\b'; then
+      REASONS+=("finding tagged PRIVILEGED cannot be CONFIRMED permissionless")
+    else
+      REASONS+=("CONFIRMED requires CLASS: EXTRACT (GRIEF/PRIVILEGED stay out of this queue)")
+    fi
+  elif ! printf '%s' "$class" | grep -qiE 'EXTRACT'; then
+    REASONS+=("CONFIRMED CLASS must be EXTRACT — GRIEF/PRIVILEGED are not the permissionless queue")
+  fi
+
+  missing_econ=""
+  printf '%s\n' "$econ" | grep -qiE 'FLASHLOAN|CAPITAL' || missing_econ="${missing_econ} flashloanability/capital"
+  printf '%s\n' "$econ" | grep -qiE 'ATOMIC|SAME-?TX|SAME TX' || missing_econ="${missing_econ} same-tx atomicity"
+  printf '%s\n' "$econ" | grep -qiE 'EXIT LIQUIDITY|LIQUIDITY' || missing_econ="${missing_econ} exit liquidity"
+  printf '%s\n' "$econ" | grep -qiE 'MEV|KEEPER' || missing_econ="${missing_econ} MEV/keeper race"
+  if [ -n "$missing_econ" ]; then
+    REASONS+=("report.md Economic Impact missing harsher checks:$missing_econ")
+  fi
 fi
 
 if [ "${#REASONS[@]}" -eq 0 ]; then
@@ -139,7 +171,8 @@ build_report() {
     echo "REPORT GATE PASS. report.md matches the evidence standard."
   else
     echo "DO NOT SHIP report.md as a finding. Return to the ledger / harness / falsification."
-    echo "If nothing is CONFIRMED, report.md must contain only the honest empty sentence."
+    echo "CONFIRMED still requires RUNTIME_VERIFIED + ECONOMICALLY_VERIFIED + kill attempt."
+    echo "GRIEF and PRIVILEGED stay out of this queue. If nothing is CONFIRMED, honest empty."
   fi
 }
 

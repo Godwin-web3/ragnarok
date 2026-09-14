@@ -89,5 +89,8 @@ Invent:
 
 One seam per dive.
 Write the FACT table.
-Write two CX cards.
-Run the cheapest falsifier on the first card before writing a third.
+The **first** CX on the seam is a pairing: two components disagree about that fact (vault↔oracle, queue↔settlement, message↔mint, …). `gate_check` requires this once any CX exists. Do not wait for the late composition walk.
+
+Write at most two live CX cards. Run the cheapest falsifier on the first card and record `FALSIFIER RESULT` before inventing another. A prose WITNESS stays INVENTED.
+
+Load `references/shapes.md` as generators against this seam. Do not scan the shape list as bug classes.

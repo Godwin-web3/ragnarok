@@ -10,7 +10,7 @@ Enough to invent states:
 - at least one actor→entry→effect trace **or** one composition pairing
 - `NOW.md` lists what is still unmapped / UNVERIFIED
 
-When that exists and Phase 0 is complete, SYNTHESIS OPEN. Invent impossible states. Do not wait for a finished model.
+When that exists and Phase 0 is complete, SYNTHESIS OPEN. Invent impossible states. First CX is a pairing (two components). Do not wait for a finished model or for the late composition walk.
 
 ## Wide map (complete eventually, not first)
 
@@ -25,6 +25,8 @@ Grow the map when:
 - a `CX-###` names a component that is not a node
 - a probe is blocked by an unknown dependency
 - you are about to claim the surface is exhausted
+
+After you add a node or entrypoint, run `scripts/gate_check.sh research/ --write`. The gate stamps the map and queues every `- Revisit if:` line from `killed.md`. Killed constructions are not permanently dead (see `references/kill.md`).
 
 ## Traces
 

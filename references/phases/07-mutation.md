@@ -8,4 +8,4 @@ A failed attack does not automatically kill the underlying primitive. Record why
 - repetition
 - combination with another protocol mechanism
 
-Try materially different paths before killing the primitive. A documented kill is a result. Write `research/killed.md` with a revisit condition.
+Try materially different paths before killing the primitive. A documented kill is a result. Write `research/killed.md` with a `- Revisit if:` line naming an entrypoint() or node. Map growth queues those lines (`references/kill.md`).
