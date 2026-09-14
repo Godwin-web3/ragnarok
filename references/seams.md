@@ -93,4 +93,4 @@ The **first** CX on the seam is a pairing: two components disagree about that fa
 
 Write at most two live CX cards. Run the cheapest falsifier on the first card and record `FALSIFIER RESULT` before inventing another. A prose WITNESS stays INVENTED.
 
-Load `references/shapes.md` as generators against this seam. Do not scan the shape list as bug classes.
+Load a seam-matched pack as generators against this seam (`scripts/shape_retrieve.sh vault` / `oracle` / …). Do not scan `references/shapes.md` or `knowledge/` as bug classes. Do not dump the corpus.

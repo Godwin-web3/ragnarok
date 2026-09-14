@@ -1,10 +1,16 @@
 # Adversarial State Synthesis
 
-The heart of V5. Load when SYNTHESIS is OPEN, **together with** `references/shapes.md`.
+The heart of V5. Load when SYNTHESIS is OPEN, **together with a seam-matched shape pack**.
+
+```
+scripts/shape_retrieve.sh <seams-from-thin-map>
+```
+
+Default 15 shapes. Never the full `knowledge/` corpus. Never raw findings. `references/shapes.md` documents the layer and holds the 30 hand-written calibration shapes; do not load it as a 30-item scanner checklist.
 
 Job is not to inspect code for bugs. Job is to invent hostile worlds, then try to walk into them using only valid calls.
 
-`shapes.md` is a generator corpus. It is not a scanner. If you tick shapes like SWC classes, you are doing it wrong.
+Retrieved shapes are generators. They are not a scanner. If you tick shapes like SWC classes, or ask "which of these known bugs is present?", you are doing it wrong (that is LazyAudit). The question is still: what impossible state could this seam inhabit?
 
 ## Early composition (mandatory)
 
@@ -18,7 +24,7 @@ Do not wait for the late composition walk (`references/phases/08-composition.md`
 
 ## Generator
 
-For each important transition on the current seam, and against the shapes corpus:
+For each important transition on the current seam, and against the **retrieved** shape pack (not the full corpus):
 
 1. What state does this function assume is impossible?
 2. Can valid calls reach that state?
@@ -70,11 +76,19 @@ Wrong generator:
 
 > Check for rounding bugs.
 
+Wrong generator:
+
+> This looks like SHAPE-K017 / like the known contest finding.
+
+A retrieved shape that you have not walked into with a witness is not a finding. Do not promote it.
+
 ## Iteration
 
 ```
-invent pairing CX → cheapest probe → record result → invent or mutate → if blocked, expand map → reopen killed.md
+retrieve seam pack → invent pairing CX → cheapest probe → record result → invent or mutate → if blocked, expand map → reopen killed.md
 ```
+
+Do not invent 15 CX cards because the pack has 15 shapes. Focus lock: max 2 live. The pack feeds the next invention, then you put it down.
 
 Do not pause synthesis until `protocol-model.md` is campaign-complete. Grow the model when the construction needs a named promise, condition, or accounting identity.
 
