@@ -5,3 +5,10 @@
 # is ever run from inside a checkout of this repo itself.
 research/
 /research/
+
+# Distiller cache / raw dataset. HF license is `other` — do not vendor reports.
+*.parquet
+scripts/.cache/
+knowledge/.cache/
+__pycache__/
+*.pyc

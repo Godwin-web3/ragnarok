@@ -24,16 +24,17 @@ One rule still does not bend: **a finding is not a finding until it is proven on
 
 Ragnarok runs as a **single primary agent** with persistent on-disk research state.
 
-## Core loop (V4)
+## Core loop (V5)
 
 ```
 PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
-→ VALID ACTION SEQUENCE → WITNESS → MONETIZATION → MUTATE → KILL → EXPAND
+→ VALID ACTION SEQUENCE → WITNESS → HARNESS → MONETIZATION
+→ INVARIANT FUZZ → MUTATE → KILL → EXPAND → REOPEN
 ```
 
 Thin map first. Invent states as soon as you know the live nodes and one trace. Expand the map when a construction is blocked.
 
-After SYNTHESIS OPEN, a fork or harness probe must exist within two days of hunt time. If it does not, stop writing notes and run the cheapest falsifier.
+After SYNTHESIS OPEN, retrieve a **small seam-matched shape pack** (`scripts/shape_retrieve.sh <seams>`) as generators — not a bug checklist, not the full knowledge corpus. A fork or harness probe must exist within two days of hunt time. If it does not, stop writing notes and run the cheapest falsifier.
 
 ## Reconstruction doctrine
 
@@ -64,8 +65,8 @@ scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states → chea
 ./scripts/scaffold.sh <target-dir>
 # Phase 0 + thin map (component graph + one trace)
 ./scripts/gate_check.sh <target-dir>/research
-# SYNTHESIS OPEN: write contradiction cards and probe
-# CAMPAIGN OPEN: full reconstruction is on disk — widen the hunt
+# SYNTHESIS OPEN: retrieve a seam pack, write contradiction cards, probe
+./scripts/shape_retrieve.sh vault oracle
 ./scripts/probe_evm.sh   # cheap read-only / fork checks
 ./scripts/harness_init.sh <target-dir>
 ./scripts/report_gate.sh <target-dir>/research
@@ -112,6 +113,11 @@ Never delete a record. Append `SUPERSEDED`, `REFINED`, or `KILLED`.
 7. The map is the system. Experiments may be local. The map may not shrink.
 8. Start from a contradiction, not from a vulnerability category.
 9. Read bounty scope before you write a report.
+10. Past findings fuel imagination by seam. They are never a LazyAudit match list.
+
+## Knowledge layer
+
+Abstract STATE shapes distilled from `Zaevlad/audit-findings-dataset` live in `knowledge/`. Rebuild with `python3 scripts/distill_shapes.py --download`. License/provenance: `knowledge/PROVENANCE.md`. Hunt retrieval: `scripts/shape_retrieve.sh`.
 
 ## Author
 

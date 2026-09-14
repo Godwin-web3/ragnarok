@@ -4,15 +4,16 @@ description: Contradiction-driven adversarial DeFi research for bug-bounty targe
 compatibility: Platform-neutral. Needs target source, read-only production access where available, and one execution adapter (EVM Foundry/Anvil first). Deployment-dependent conclusions are BLOCKED or UNKNOWN when evidence is missing. Live writes require explicit authorization.
 metadata:
   author: GodwinXbt
-  version: "5"
+  version: "5.1"
   primary-agent: single-primary-agent
   state: persistent-state
   execution: environment-adaptive
   loop: contradiction-driven
   objective: REALITY x EXPLOITABILITY x ECONOMIC_IMPACT x NOVELTY
+  knowledge: seam-matched-shape-pack
 ---
 
-# Ragnarok V5
+# Ragnarok V5.1
 
 Ragnarok is a methodology, not a scanner.
 One primary agent holds the investigation.
@@ -80,9 +81,15 @@ For every important transition:
 10. Can I separate recorded balance from actual balance?
 11. Can A then B then C each succeed while A-B-C is economically impossible under the intended model?
 
-After a thin map, load `references/shapes.md` as **generators**, not as a scanner. Invent the state. Do not tick shapes like SWC classes.
+After a thin map, load a **small seam-matched shape pack** as **generators**, not as a scanner. Invent the state. Do not tick shapes like SWC classes.
 
-Invent the contradiction first. The primitive is discovered from how the impossible state was reached.
+```
+scripts/shape_retrieve.sh <seams-from-thin-map>
+```
+
+Default N is 15. Never load `knowledge/` wholesale. Never load raw findings. Hand-written calibration shapes in `references/shapes.md` (SHAPE-01…30) stay in the pack when they match the seam.
+
+Invent the contradiction first. The primitive is discovered from how the impossible state was reached. A retrieved shape is fuel for that invention, not a bug to match.
 
 ## Load rules
 
@@ -100,7 +107,7 @@ On resume: those, plus only the file the next action needs.
 | Assumptions | `references/phases/04-assumptions.md` |
 | Protocol model | `references/phases/05-protocol-model.md` |
 | Same-fact ledgers | `references/phases/05-representations.md` |
-| Invent states | `references/phases/05-synthesis.md` **and** `references/shapes.md` |
+| Invent states | `references/phases/05-synthesis.md` **and** the seam-matched pack from `scripts/shape_retrieve.sh` (not the full corpus; `references/shapes.md` is calibration + retrieve docs) |
 | Rank constructions | `references/phases/05-hypotheses.md` |
 | Payment / vault / settlement seams | `references/seams.md` |
 | Experiments / CX harness | `references/phases/06-experiments.md` plus adapter |
@@ -115,6 +122,21 @@ Calibration: `references/examples/` (all arcs). Load the one that matches the cu
 Templates: `references/templates.md`.
 EVM commands: `references/adapters/evm.md`. Other chains: cheapest equivalent runtime probe; Foundry invariant fuzz is EVM-first.
 
+## Knowledge layer (V5.1)
+
+Past findings fuel imagination. They are not a scanner index.
+
+After SYNTHESIS OPEN, identify seam tags from the thin map (vault, oracle, bridge, …). Retrieve **one** small pack:
+
+```
+scripts/shape_retrieve.sh vault oracle
+```
+
+Load that pack only (≈10–20 shapes). Do not load `knowledge/shapes/`, `knowledge/by-seam/`, or the parquet. Do not load raw `bug_desc` / PoC text.
+
+Generator question stays Ragnarok's: what impossible state / representation divergence could this seam inhabit? Not: which of these known bugs is present?
+
+Retrieved shapes do not create extra live CX cards. Focus lock is unchanged. Empty `knowledge/` falls back to the hand-written calibration set in `references/shapes.md`.
 ## Objective
 
 ```
@@ -216,7 +238,7 @@ MONETIZATION:   Who redeems, withdraws, settles, or is forced to absorb it?
 Correct generator: Can total claims stay unchanged while redeemable assets decrease?
 Wrong generator: Check for rounding bugs.
 
-Prefer seams in `references/seams.md` when the target is a vault, stablecoin, payment rail, bridge, or yield wrapper.
+Prefer seams in `references/seams.md` when the target is a vault, stablecoin, payment rail, bridge, or yield wrapper. After SYNTHESIS OPEN, retrieve shapes for **those** seams only. The generator question does not change.
 
 When a card becomes `REACHABLE`, map it to a Foundry invariant / handler set. Ragnarok invents the state; the fuzzer tries to walk into it:
 
@@ -277,9 +299,14 @@ PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
 21. Promote a prose-only WITNESS to PROBING.
 22. Invent CX-003 while two live cards and an unresolved probe exist.
 23. Wait until the composition phase to write a pairing CX.
-24. Tick `shapes.md` like a vulnerability-category scanner.
+24. Tick `shapes.md` or `knowledge/` like a vulnerability-category scanner.
 25. Put GRIEF or PRIVILEGED in the permissionless CONFIRMED queue.
 26. Treat a killed construction as dead after the map grows.
+27. Dump the knowledge corpus (or raw audit findings) into agent context during a hunt.
+28. LazyAudit: describe the code, retrieve similar known bug titles, ask "is this like that?"
+29. Promote a retrieved shape to a finding without CX → witness → harness → kill.
+30. Treat shape titles as vulnerability categories, or match SWC / bug-class names to the target.
+31. Let a retrieved pack create more live CX cards than the focus lock allows.
 
 ## Quality bar
 
@@ -295,7 +322,7 @@ PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
 1. `scripts/scaffold.sh <target-dir>`
 2. Phase 0. Fill `scope.md`. Read `references/bounty.md` if this is a bounty.
 3. Thin map. Component graph plus one trace.
-4. `scripts/gate_check.sh research/` — SYNTHESIS OPEN, then invent states from `references/shapes.md`.
+4. `scripts/gate_check.sh research/` — SYNTHESIS OPEN, then `scripts/shape_retrieve.sh <seams>` and invent states from that pack. Do not load the full corpus.
 5. Representations table for the current seam. First CX is a pairing.
 6. Contradiction cards with assertable WITNESS. Cheapest probe first. EVM: `scripts/probe_evm.sh`, `scripts/harness_init.sh --cx`, `references/adapters/evm.md`.
 7. Expand the map only when blocked. Reopen `killed.md` when nodes appear.

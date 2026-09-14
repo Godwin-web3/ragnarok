@@ -10,7 +10,7 @@ Enough to invent states:
 - at least one actor→entry→effect trace **or** one composition pairing
 - `NOW.md` lists what is still unmapped / UNVERIFIED
 
-When that exists and Phase 0 is complete, SYNTHESIS OPEN. Invent impossible states. First CX is a pairing (two components). Do not wait for a finished model or for the late composition walk.
+When that exists and Phase 0 is complete, SYNTHESIS OPEN. Retrieve a small seam pack (`scripts/shape_retrieve.sh <seams>`), then invent impossible states. First CX is a pairing (two components). Do not wait for a finished model or for the late composition walk. Do not load the knowledge corpus wholesale.
 
 ## Wide map (complete eventually, not first)
 

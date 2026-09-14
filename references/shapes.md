@@ -2,14 +2,38 @@
 
 Load **after a thin map**, together with `references/phases/05-synthesis.md`.
 
+Do **not** load this whole file plus the knowledge corpus. After SYNTHESIS OPEN, retrieve a small pack:
+
+```
+scripts/shape_retrieve.sh <seams-from-thin-map>
+```
+
+Default N=15. Empty `knowledge/` falls back to the hand-written calibration shapes below.
+
 These are abstract STATE SHAPES. They are generators. They are not bug classes, not SWC numbers, not a scanner checklist.
 
 Wrong use: walk this list and "check for" each item.
+Wrong use: describe the code, fetch similar known bug titles, ask "is this like that?"
 Correct use: pick the shape that the current seam could inhabit, invent a CX card with an assertable WITNESS, try to walk into it.
 
 Do not name a vulnerability category on the card. Name the state.
 
-Each shape: a world that should be unreachable, a pairing hint, a witness sketch. Rewrite them onto the target. Copying the sketch as a finding is a method failure.
+## Knowledge layer (distilled)
+
+Curated abstract cards live in `knowledge/` (see `knowledge/README.md` and `knowledge/PROVENANCE.md`). They are distilled from the public Hugging Face dataset `Zaevlad/audit-findings-dataset` (~23,625 contest/audit findings), filtered for Critical/High (optional high-weight Medium) **and** a real PoC, then clustered so you do not get 23k near-copies.
+
+Hunt path:
+
+1. Thin map names the live seams (vault, oracle, bridge, …).
+2. `scripts/shape_retrieve.sh vault oracle` prints ~15 generators.
+3. Invent CX cards under the focus lock. The pack does not authorize 15 live cards.
+4. Evidence ladder unchanged: CX → witness → harness → kill.
+
+Never load raw findings. Never dump `knowledge/shapes/` into context.
+
+## Calibration set (hand-written)
+
+Each shape below: a world that should be unreachable, a pairing hint, a witness sketch. Rewrite them onto the target. Copying the sketch as a finding is a method failure. Retrieval includes matching calibration shapes alongside distilled ones.
 
 ## SHAPE-01 — Claims stay constant while redeemable assets fall
 
@@ -193,9 +217,11 @@ Witness sketch: same-tx ordering captures value that a delayed keeper would have
 
 ## Anti-pattern
 
-Do **not** turn this file into a vulnerability-category scanner.
+Do **not** turn this file or `knowledge/` into a vulnerability-category scanner.
 
 - "SHAPE-21 → hunt donation attacks" is the wrong move.
 - "Can claims stay constant while redeemable assets fall on *this* seam?" is the right move.
+- Matching SWC / bug-class names to the target is the wrong move.
+- Dumping the corpus, or promoting a retrieved shape without CX → witness → harness → kill, is a method failure.
 
 If you notice yourself naming reentrancy, oracle manipulation, or rounding as the generator, stop. Re-read the shape as a state. Write the CX. Assert the witness.
