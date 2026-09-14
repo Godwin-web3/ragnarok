@@ -1,5 +1,7 @@
 # Worked example — reachable, then killed
 
+Sister arc for a CONFIRMED path: `survive-monetize-confirm.md`. For reopening this kill: `reopen-on-expansion.md`.
+
 Synthetic target **QueuePay**: a two-step redeem. User burns stablecoin into a queue. A keeper later pays collateral.
 
 This file shows an honest kill. Copy the shape.

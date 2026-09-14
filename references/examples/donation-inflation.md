@@ -1,5 +1,7 @@
 # Worked example — density calibration
 
+Sister arcs (same density): `survive-monetize-confirm.md`, `reachable-then-killed.md`, `composition-win.md`, `grief-vs-extract.md`, `focus-lock-violation.md`, `witness-harness.md`, `reopen-on-expansion.md`.
+
 Synthetic target **HearthVault**: an ERC-4626-style vault that mints shares against `totalAssets()` reported by a spot oracle. Inspired by the public donation / inflation class plus stale-oracle composition. Not a disclosure of a live protocol.
 
 This file shows how dense artifacts should be. Copy the shape, not the sentences.

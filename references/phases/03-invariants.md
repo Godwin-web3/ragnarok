@@ -15,3 +15,5 @@ Do not invent economic invariants a protocol does not have. If none apply, write
 Each `INV-###` uses the seven fields in `references/templates.md`. No essays.
 
 Phase 5 will link these `INV-###` ids from `protocol-model.md` as accounting evidence. Do not restate the invariant there.
+
+When a CX becomes REACHABLE, map it to a Foundry invariant / handler set (`references/invariant-fuzz.md`). Reconstruction invariants (this file) are not the same object as the fuzz invariant, but the fuzz invariant should be the negation of the CX WITNESS.

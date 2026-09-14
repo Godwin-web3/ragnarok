@@ -19,3 +19,15 @@ For every high-value hypothesis:
 RUNTIME_VERIFIED only if the relevant implementation ran. A Python model is SOURCE_VERIFIED at best.
 
 EVM recipe: `references/adapters/evm.md`.
+
+CX witness harness (STATE holds + MONETIZATION moves value):
+
+```
+scripts/harness_init.sh <target-dir> --cx CX-001
+```
+
+When a CX is REACHABLE, add the invariant/handler set (`references/invariant-fuzz.md`):
+
+```
+scripts/harness_init.sh <target-dir> --invariant CX-001
+```

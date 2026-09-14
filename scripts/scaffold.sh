@@ -10,12 +10,6 @@ RESEARCH="$TARGET/research"
 mkdir -p "$RESEARCH/experiments"
 
 for f in \
-  assumptions.md \
-  representations.md \
-  contradictions.md \
-  coverage.md \
-  killed.md \
-  survivors.md \
   final.md; do
   if [ ! -f "$RESEARCH/$f" ]; then
     : > "$RESEARCH/$f"
@@ -31,6 +25,9 @@ if [ ! -f "$RESEARCH/NOW.md" ]; then
 - Env:
 - Pin:
 - Adapter:
+- Focus lock: live 0/2, probes 0/1, unresolved 0
+- Open probe:
+- Last falsifier result:
 
 ## Map (15 lines max)
 - Components:
@@ -223,8 +220,9 @@ ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EF
 ---|---|---|---|---|---|---|---|---|---|---|---
 H-001 | _e.g. oracle price is trusted as fresh_ | _mint/withdraw path_ | _state, roles, funds_ | _ordered steps_ | _state delta_ | _$ impact_ | _experiment file_ | SOURCE_VERIFIED | P3 | _eth_call_ | UNTESTED
 
-Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED
-CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact).
+Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT.
+GRIEF and PRIVILEGED never occupy the permissionless CONFIRMED queue.
 EOF
 fi
 
@@ -250,15 +248,38 @@ if [ ! -f "$RESEARCH/contradictions.md" ]; then
   cat > "$RESEARCH/contradictions.md" <<'EOF'
 # Contradictions
 
-## CX-001 — <impossible world>
-- STATE:
-- CONTRADICTION:
-- CONSTRUCTION:
-- SEQUENCE:
-- WITNESS:
-- MONETIZATION:
-- BLOCKED BY:
-- STATUS: INVENTED
+Required fields per card (do not invent until SYNTHESIS OPEN):
+
+- STATE / CONTRADICTION / PAIRING / CONSTRUCTION / SEQUENCE
+- WITNESS: assertable expression (not prose) or the card stays INVENTED
+- MONETIZATION / CHEAPEST FALSIFIER / FALSIFIER RESULT
+- HANDLERS / INVARIANT HARNESS (required once REACHABLE)
+- CLASS: EXTRACT / GRIEF / PRIVILEGED / UNKNOWN
+- STATUS: INVENTED | PROBING | REACHABLE | UNREACHABLE | MONETIZABLE | KILLED
+
+Max 2 live cards (INVENTED/PROBING/REACHABLE). Max 1 open probe.
+At least one card must name a two-component PAIRING.
+EOF
+fi
+
+if [ ! -f "$RESEARCH/killed.md" ]; then
+  cat > "$RESEARCH/killed.md" <<'EOF'
+# Killed constructions
+
+Every kill needs:
+- Why it failed
+- Mutations attempted
+- Why the primitive is NOT recoverable via this path
+- A revisit condition naming the entrypoint() or node that would reopen it
+
+When architecture.md gains a node or entrypoint, gate_check queues every
+killed card that has a `- Revisit if:` field. Kills are not permanently dead.
+EOF
+fi
+
+if [ ! -f "$RESEARCH/survivors.md" ]; then
+  cat > "$RESEARCH/survivors.md" <<'EOF'
+# Surviving primitives
 EOF
 fi
 
@@ -279,8 +300,11 @@ echo "Ragnarok research state initialized at $RESEARCH"
 ls -R "$RESEARCH"
 echo
 echo "Normal flow:"
-echo "  scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states → probe → kill → report_gate"
+echo "  scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent pairing CX + shapes → probe → kill → report_gate"
 echo "After a thin map, run:"
 echo "  scripts/gate_check.sh $RESEARCH"
+echo "CX → harness:"
+echo "  scripts/harness_init.sh $TARGET --cx CX-001"
+echo "  scripts/harness_init.sh $TARGET --invariant CX-001"
 echo "Before shipping report.md, run:"
 echo "  scripts/report_gate.sh $RESEARCH"
