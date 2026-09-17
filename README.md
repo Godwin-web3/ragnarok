@@ -20,13 +20,14 @@ Install https://github.com/Godwin-web3/ragnarok and run ragnarok on this protoco
 run ragnarok on this codebase
 run ragnarok on the vault and oracle
 hunt this bounty target with ragnarok
+run ragnarok on evals/dvd-unstoppable
 ```
 
 ```
 update ragnarok to the latest version
 ```
 
-Point the skill at a protocol repository, a bounty page, or a small set of live contracts.
+Point the skill at a protocol repository, a bounty page, or an eval target.
 
 ---
 
@@ -63,6 +64,12 @@ After a thin map the agent retrieves a small seam-matched shape pack and invents
 
 ---
 
+## Evals
+
+Known-broken systems live in [`evals/`](evals/). The first target is Damn Vulnerable DeFi Unstoppable. A run passes only if the witness is reached and the class matches the answer key. Grief is not EXTRACT.
+
+---
+
 ## Repository
 
 | Path | Role |
@@ -72,6 +79,7 @@ After a thin map the agent retrieves a small seam-matched shape pack and invents
 | [scripts/](scripts/) | Scaffold, gates, retrieve, probe, harness |
 | [references/](references/) | Phases, seams, bounty rules, adapters |
 | [knowledge/](knowledge/) | Distilled state shapes. Load a pack, never the corpus |
+| [evals/](evals/) | Broken systems used as the score |
 
 ---
 
