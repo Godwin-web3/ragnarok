@@ -1,128 +1,99 @@
-<div align="center">
-
 # Ragnarok
 
-### Contradiction-driven adversarial DeFi research
+> Contradiction-driven adversarial DeFi research skill.
+> Invent an impossible state. Reach it with valid calls. Prove it on a fork. Kill it if you cannot.
 
-Invent an impossible state. Reach it with valid calls. Prove it on a fork. Kill it if you cannot.
+Not a vulnerability-category scanner.
+Not a 12-agent sweep.
+One primary agent. Persistent disk is memory. A finding is not a finding until a local fork proves it.
 
-<br/>
-
-`map` · `represent` · `contradict` · `construct` · `witness` · `monetize` · `kill` · `expand`
-
-</div>
+**Supported AI platforms:** Claude Code, Cursor, Codex, Copilot, Windsurf, Grok.
 
 ---
 
-## What Ragnarok is
-
-**Ragnarok** hunts exploitable vulnerabilities in DeFi by inventing protocol states the designers probably never wrote down, then trying to walk into those states using only valid actions.
-
-It is not a vulnerability-category scanner. The unit of reasoning is the **impossible state**, not the named bug class.
-
-One rule still does not bend: **a finding is not a finding until it is proven on a local fork.** Speculation is never evidence. A live system is never exploited.
-
-Ragnarok runs as a **single primary agent** with persistent on-disk research state.
-
-## Core loop (V5)
+## Install, run, update
 
 ```
-PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
-→ VALID ACTION SEQUENCE → WITNESS → HARNESS → MONETIZATION
-→ INVARIANT FUZZ → MUTATE → KILL → EXPAND → REOPEN
+Install https://github.com/Godwin-web3/ragnarok and run ragnarok on this protocol
 ```
 
-Thin map first. Invent states as soon as you know the live nodes and one trace. Expand the map when a construction is blocked.
+```
+run ragnarok on this codebase
+run ragnarok on the vault and oracle
+hunt this Immunefi target with ragnarok
+```
 
-After SYNTHESIS OPEN, retrieve a **small seam-matched shape pack** (`scripts/shape_retrieve.sh <seams>`) as generators — not a bug checklist, not the full knowledge corpus. A fork or harness probe must exist within two days of hunt time. If it does not, stop writing notes and run the cheapest falsifier.
+```
+update ragnarok to the latest version
+```
 
-## Reconstruction doctrine
+Point it at a protocol repo, a bounty page, or 2–5 hot contracts. Do not point it at `lib/` and hope.
 
-| Layer | Width | Depth | Purpose |
-| :--- | :--- | :--- | :--- |
-| Map | Every live component, asset, authority, external dep | Shallow, tabular | You cannot attack a node that is not on the graph |
-| Traces | Every class of boundary | Schematic | Value, privilege, upgrade, callback, oracle |
-| Dive | Cut-set of a live construction | Deep | Source, storage, deployment, experiment |
+---
 
-The map does not shrink. Complete reconstruction is not a prerequisite for imagination.
+## What it is
 
-## How it runs
-
-| Environment | What's allowed |
+| Skill | What it does |
 | :--- | :--- |
-| **Read-only production** | Observe, reconstruct, reason. No writes. |
-| **Local fork** | Build and run exploit PoCs, isolated from production. |
-| **Authorized live** | Only within explicit, bounded scope. |
+| ragnarok | Invent protocol states the designers never wrote down, try to reach them with valid actions, prove or kill on a local fork |
 
-## How to use it
+Pashov skills scan source with parallel specialty agents.
+Ragnarok holds one investigation and refuses to promote prose to a finding.
 
-```text
-scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states → cheapest probe
-         → expand map when blocked → one harness → kill → report_gate
+Use Pashov when you want breadth on a commit.
+Use Ragnarok when you want one reachable impossible state on a live system or bounty target.
+
+---
+
+## How a run works
+
+```
+scaffold → thin map → gate_check (SYNTHESIS OPEN) → invent states
+         → cheapest probe → harness → kill → report_gate
 ```
 
 ```bash
 ./scripts/scaffold.sh <target-dir>
-# Phase 0 + thin map (component graph + one trace)
 ./scripts/gate_check.sh <target-dir>/research
-# SYNTHESIS OPEN: retrieve a seam pack, write contradiction cards, probe
 ./scripts/shape_retrieve.sh vault oracle
-./scripts/probe_evm.sh   # cheap read-only / fork checks
-./scripts/harness_init.sh <target-dir>
+./scripts/probe_evm.sh
+./scripts/harness_init.sh <target-dir> --cx CX-001
 ./scripts/report_gate.sh <target-dir>/research
 ```
 
-On resume the agent reads `research/NOW.md` and `research/phase-state.md`.
+Hard rules the skill enforces:
 
-## Persistent state
+- At most 2 live contradiction cards. One open probe.
+- Witness must be an assert, not a sentence.
+- CONFIRMED requires a fork run plus extract economics plus a kill attempt.
+- Live writes need explicit authorization. Default is read-only production plus local fork.
+
+---
+
+## Layout
 
 ```
-research/
-├── scope.md
-├── NOW.md
-├── architecture.md
-├── asset-flows.md
-├── trust-boundaries.md
-├── deployment.md
-├── invariants.md
-├── assumptions.md
-├── protocol-model.md
-├── representations.md
-├── contradictions.md
-├── leads.md
-├── hypotheses.md
-├── experiments/
-├── killed.md
-├── survivors.md
-├── coverage.md
-├── phase-state.md
-├── final.md
-└── report.md
+SKILL.md              # agent skill (install this)
+VERSION               # bump when the skill contract changes
+scripts/              # scaffold, gates, retrieve, probe, harness
+references/           # phases, seams, bounty, adapters (load on demand)
+knowledge/            # seam-matched state shapes (never load wholesale)
 ```
 
-Never delete a record. Append `SUPERSEDED`, `REFINED`, or `KILLED`.
+---
 
-## Principles that never bend
+## What this is not
 
-1. Authorized boundaries only. A live system is never exploited.
-2. Prove every finding on a fork or harness. Speculation is not evidence.
-3. Honest severity. Never inflate.
-4. Separate centralization risk from a permissionless exploit.
-5. Kill your own findings when they do not hold up.
-6. Private until patched.
-7. The map is the system. Experiments may be local. The map may not shrink.
-8. Start from a contradiction, not from a vulnerability category.
-9. Read bounty scope before you write a report.
-10. Past findings fuel imagination by seam. They are never a LazyAudit match list.
+- Not a substitute for a formal audit.
+- Not a Slither wrapper.
+- Not finished as a one-command black box. The product is the skill plus the gates. You still sit in the loop until a harness exists.
 
-## Knowledge layer
+If the agent writes architecture notes for two days and never runs a fork, the skill failed. Stop it.
 
-Abstract STATE shapes distilled from `Zaevlad/audit-findings-dataset` live in `knowledge/`. Rebuild with `python3 scripts/distill_shapes.py --download`. License/provenance: `knowledge/PROVENANCE.md`. Hunt retrieval: `scripts/shape_retrieve.sh`.
+---
 
 ## Author
 
-Created and maintained by **GodwinXbt** ([@Godwin-web3](https://github.com/Godwin-web3)).
+GodwinXbt ([@Godwin-web3](https://github.com/Godwin-web3))
 
-## License
-
-Licensed under the **MIT License**, Copyright (c) 2026 GodwinXbt.
+MIT. Copyright (c) 2026 GodwinXbt.

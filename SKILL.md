@@ -1,10 +1,11 @@
 ---
 name: ragnarok
-description: Contradiction-driven adversarial DeFi research for bug-bounty targets and live deployments. Invent impossible protocol states, reach them with valid actions, prove or kill on a local fork. Not a vulnerability-category scanner. Single primary agent. Persistent disk is memory. Use when hunting Immunefi, Sherlock, Cantina, or live DeFi, stablecoin, payment, vault, bridge, or settlement bugs.
+description: Contradiction-driven adversarial DeFi research skill. Invent impossible protocol states, reach them with valid actions, prove or kill on a local fork. Trigger on ragnarok, hunt this protocol, bounty hunt, Immunefi, Sherlock, Cantina, invent an impossible state, fork PoC, vault oracle bridge stablecoin payment settlement bugs. Not a vulnerability-category scanner. Single primary agent with persistent disk state.
 compatibility: Platform-neutral. Needs target source, read-only production access where available, and one execution adapter (EVM Foundry/Anvil first). Deployment-dependent conclusions are BLOCKED or UNKNOWN when evidence is missing. Live writes require explicit authorization.
+license: MIT
 metadata:
   author: GodwinXbt
-  version: "5.1"
+  version: "6"
   primary-agent: single-primary-agent
   state: persistent-state
   execution: environment-adaptive
@@ -13,20 +14,44 @@ metadata:
   knowledge: seam-matched-shape-pack
 ---
 
-# Ragnarok V5.1
+# Ragnarok V6
 
-Ragnarok is a methodology, not a scanner.
-One primary agent holds the investigation.
+You are the single primary agent for a Ragnarok hunt.
 Persistent disk state is memory. Conversation is not.
-
-A finding is not a finding until it is proven on a local fork, economically validated as EXTRACT (not grief), and still alive after you tried to kill it.
-
-The unit of reasoning is a protocol state the designers probably never wrote down.
-
 Do not fan out sub-agents.
-Do not load every reference at once.
-Do not shrink the system map to save tokens.
-Do not start from a vulnerability category.
+A finding is not a finding until it is proven on a local fork, classed EXTRACT, and still alive after a kill attempt.
+
+`$SKILL_DIR` is the directory that contains this SKILL.md.
+
+## Start (every run)
+
+Print this banner first:
+
+```
+RAGNAROK  ·  invent → reach → prove → kill
+```
+
+Then in one turn:
+
+1. Read `$SKILL_DIR/VERSION`.
+2. Fetch `https://raw.githubusercontent.com/Godwin-web3/ragnarok/master/VERSION`. If it differs, tell the user to update the skill. If the fetch fails, continue.
+3. Resolve the target. User path wins. Else cwd if it has `.sol` / `foundry.toml` / `hardhat.config.*`. Else ask for a target directory or bounty URL.
+4. If `<target>/research/NOW.md` exists, resume from `research/NOW.md` and `research/phase-state.md`.
+5. If it does not, run:
+
+```bash
+bash $SKILL_DIR/scripts/scaffold.sh <target-dir>
+```
+
+6. Fill `research/scope.md` before inventing states. Default authorization if unknown:
+
+```
+Authorization: UNKNOWN
+Environment: READ_ONLY_PRODUCTION
+Live exploitation: NO
+```
+
+Then follow the loop below. Load reference files only when the current action needs them.
 
 ## 48-hour rule
 
@@ -53,7 +78,7 @@ Soft prose ("the vault looks insolvent") is refused. That card stays `INVENTED` 
 Mechanical path:
 
 ```
-scripts/harness_init.sh <target-dir> --cx CX-001
+bash $SKILL_DIR/scripts/harness_init.sh <target-dir> --cx CX-001
 ```
 
 The scaffold asserts (1) the impossible STATE holds and (2) MONETIZATION moves value. If the witness cannot become an assert, the script refuses to write the harness.
@@ -84,7 +109,7 @@ For every important transition:
 After a thin map, load a **small seam-matched shape pack** as **generators**, not as a scanner. Invent the state. Do not tick shapes like SWC classes.
 
 ```
-scripts/shape_retrieve.sh <seams-from-thin-map>
+bash $SKILL_DIR/scripts/shape_retrieve.sh <seams-from-thin-map>
 ```
 
 Default N is 15. Never load `knowledge/` wholesale. Never load raw findings. Hand-written calibration shapes in `references/shapes.md` (SHAPE-01…30) stay in the pack when they match the seam.
@@ -107,7 +132,7 @@ On resume: those, plus only the file the next action needs.
 | Assumptions | `references/phases/04-assumptions.md` |
 | Protocol model | `references/phases/05-protocol-model.md` |
 | Same-fact ledgers | `references/phases/05-representations.md` |
-| Invent states | `references/phases/05-synthesis.md` **and** the seam-matched pack from `scripts/shape_retrieve.sh` (not the full corpus; `references/shapes.md` is calibration + retrieve docs) |
+| Invent states | `references/phases/05-synthesis.md` **and** the seam-matched pack from `scripts/shape_retrieve.sh` |
 | Rank constructions | `references/phases/05-hypotheses.md` |
 | Payment / vault / settlement seams | `references/seams.md` |
 | Experiments / CX harness | `references/phases/06-experiments.md` plus adapter |
@@ -120,16 +145,16 @@ On resume: those, plus only the file the next action needs.
 
 Calibration: `references/examples/` (all arcs). Load the one that matches the current move.
 Templates: `references/templates.md`.
-EVM commands: `references/adapters/evm.md`. Other chains: cheapest equivalent runtime probe; Foundry invariant fuzz is EVM-first.
+EVM commands: `references/adapters/evm.md`. Other chains: cheapest equivalent runtime probe. Foundry invariant fuzz is EVM-first.
 
-## Knowledge layer (V5.1)
+## Knowledge layer
 
 Past findings fuel imagination. They are not a scanner index.
 
 After SYNTHESIS OPEN, identify seam tags from the thin map (vault, oracle, bridge, …). Retrieve **one** small pack:
 
 ```
-scripts/shape_retrieve.sh vault oracle
+bash $SKILL_DIR/scripts/shape_retrieve.sh vault oracle
 ```
 
 Load that pack only (≈10–20 shapes). Do not load `knowledge/shapes/`, `knowledge/by-seam/`, or the parquet. Do not load raw `bug_desc` / PoC text.
@@ -137,6 +162,7 @@ Load that pack only (≈10–20 shapes). Do not load `knowledge/shapes/`, `knowl
 Generator question stays Ragnarok's: what impossible state / representation divergence could this seam inhabit? Not: which of these known bugs is present?
 
 Retrieved shapes do not create extra live CX cards. Focus lock is unchanged. Empty `knowledge/` falls back to the hand-written calibration set in `references/shapes.md`.
+
 ## Objective
 
 ```
@@ -172,13 +198,7 @@ SURVIVOR is a lead, not a finding.
 
 ## Authorization
 
-Record in `research/scope.md`. Default if undetermined:
-
-```
-Authorization: UNKNOWN
-Environment: READ_ONLY_PRODUCTION
-Live exploitation: NO
-```
+Record in `research/scope.md`.
 
 | Activity | Authorization |
 | :--- | :--- |
@@ -186,7 +206,7 @@ Live exploitation: NO
 | Local / fork experimentation | No. Keep isolated. |
 | Live state-changing exploitation | Yes, explicit |
 
-Read bounty scope, known issues, KYC, PoC rules, and primacy (impact vs rules) before writing a disclosure. Load `references/bounty.md`.
+Read bounty scope, known issues, KYC, PoC rules, and primacy before writing a disclosure. Load `references/bounty.md`.
 
 ## Reconstruction doctrine
 
@@ -238,33 +258,31 @@ MONETIZATION:   Who redeems, withdraws, settles, or is forced to absorb it?
 Correct generator: Can total claims stay unchanged while redeemable assets decrease?
 Wrong generator: Check for rounding bugs.
 
-Prefer seams in `references/seams.md` when the target is a vault, stablecoin, payment rail, bridge, or yield wrapper. After SYNTHESIS OPEN, retrieve shapes for **those** seams only. The generator question does not change.
+Prefer seams in `references/seams.md` when the target is a vault, stablecoin, payment rail, bridge, or yield wrapper.
 
-When a card becomes `REACHABLE`, map it to a Foundry invariant / handler set. Ragnarok invents the state; the fuzzer tries to walk into it:
+When a card becomes `REACHABLE`, map it to a Foundry invariant / handler set:
 
 ```
-scripts/harness_init.sh <target-dir> --invariant CX-001
+bash $SKILL_DIR/scripts/harness_init.sh <target-dir> --invariant CX-001
 ```
 
 ## Two mechanical gates
 
-Imagination gate after a thin map:
-
 ```
-scripts/gate_check.sh research/
+bash $SKILL_DIR/scripts/gate_check.sh <target-dir>/research
 ```
 
 SYNTHESIS OPEN when Phase 0 is complete and Phase 1 has a real component graph plus at least one trace. Then invent states, write cards, run the cheapest probe.
 
 CAMPAIGN OPEN when Phases 0–5 are complete. Full reconstruction. Not a lock on imagination.
 
-Exit 0 SYNTHESIS OPEN and hunt discipline holds, 1 SYNTHESIS LOCKED, 3 violation (constructions while SYNTHESIS LOCKED, **or** focus lock / witness promotion / missing pairing CX / REACHABLE without invariant map).
-
-Report gate: CONFIRMED plus RUNTIME_VERIFIED plus ECONOMICALLY_VERIFIED plus recorded kill attempt plus `CLASS: EXTRACT` plus the harsher economic checks, or the honest empty report.
+Exit 0 SYNTHESIS OPEN and hunt discipline holds, 1 SYNTHESIS LOCKED, 3 violation.
 
 ```
-scripts/report_gate.sh research/
+bash $SKILL_DIR/scripts/report_gate.sh <target-dir>/research
 ```
+
+Report gate: CONFIRMED plus RUNTIME_VERIFIED plus ECONOMICALLY_VERIFIED plus recorded kill attempt plus `CLASS: EXTRACT`, or the honest empty report.
 
 ## Core loop
 
@@ -302,10 +320,10 @@ PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
 24. Tick `shapes.md` or `knowledge/` like a vulnerability-category scanner.
 25. Put GRIEF or PRIVILEGED in the permissionless CONFIRMED queue.
 26. Treat a killed construction as dead after the map grows.
-27. Dump the knowledge corpus (or raw audit findings) into agent context during a hunt.
+27. Dump the knowledge corpus into agent context during a hunt.
 28. LazyAudit: describe the code, retrieve similar known bug titles, ask "is this like that?"
 29. Promote a retrieved shape to a finding without CX → witness → harness → kill.
-30. Treat shape titles as vulnerability categories, or match SWC / bug-class names to the target.
+30. Treat shape titles as vulnerability categories.
 31. Let a retrieved pack create more live CX cards than the focus lock allows.
 
 ## Quality bar
@@ -319,15 +337,14 @@ PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
 
 ## Execution checklist
 
-1. `scripts/scaffold.sh <target-dir>`
+1. `bash $SKILL_DIR/scripts/scaffold.sh <target-dir>`
 2. Phase 0. Fill `scope.md`. Read `references/bounty.md` if this is a bounty.
 3. Thin map. Component graph plus one trace.
-4. `scripts/gate_check.sh research/` — SYNTHESIS OPEN, then `scripts/shape_retrieve.sh <seams>` and invent states from that pack. Do not load the full corpus.
+4. `bash $SKILL_DIR/scripts/gate_check.sh <target-dir>/research` — SYNTHESIS OPEN, then `shape_retrieve.sh <seams>` and invent states from that pack.
 5. Representations table for the current seam. First CX is a pairing.
-6. Contradiction cards with assertable WITNESS. Cheapest probe first. EVM: `scripts/probe_evm.sh`, `scripts/harness_init.sh --cx`, `references/adapters/evm.md`.
+6. Contradiction cards with assertable WITNESS. Cheapest probe first.
 7. Expand the map only when blocked. Reopen `killed.md` when nodes appear.
 8. Grow model, invariants, and assumptions as the hunt needs them.
-9. On REACHABLE: `scripts/harness_init.sh --invariant CX-###`. Promote surviving constructions to `H-###`. One campaign harness.
-10. Mutate, kill, compose (late walk still required), check time, check money. Load `references/kill.md` and `references/phases/10-economic.md`.
-11. Revisit `SELF_RESOLVED`. Then `scripts/report_gate.sh research/`.
-12. Disclose only CONFIRMED EXTRACT findings, privately, per `references/bounty.md`.
+9. On REACHABLE: `harness_init.sh --invariant CX-###`.
+10. Mutate, kill, compose, check money. Then `report_gate.sh`.
+11. Disclose only CONFIRMED EXTRACT findings, privately, per `references/bounty.md`.
