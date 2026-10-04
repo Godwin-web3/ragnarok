@@ -5,7 +5,7 @@ compatibility: Platform-neutral. Needs target source, read-only production acces
 license: MIT
 metadata:
   author: GodwinXbt
-  version: "6"
+  version: "6.1"
   primary-agent: single-primary-agent
   state: persistent-state
   execution: environment-adaptive
@@ -14,7 +14,7 @@ metadata:
   knowledge: seam-matched-shape-pack
 ---
 
-# Ragnarok V6
+# Ragnarok V6.1
 
 You are the single primary agent for a Ragnarok hunt.
 Persistent disk state is memory. Conversation is not.
@@ -188,11 +188,13 @@ Never promote silently.
 - RUNTIME_VERIFIED — an executable run produced the state transition.
 - ECONOMICALLY_VERIFIED — that transition is a realistic attacker or protocol delta.
 
-CONFIRMED requires RUNTIME_VERIFIED effect plus ECONOMICALLY_VERIFIED impact plus `CLASS: EXTRACT`.
+CONFIRMED requires RUNTIME_VERIFIED effect plus ECONOMICALLY_VERIFIED impact plus a CLASS the target's own program actually pays for.
 
 Before CONFIRMED, record: flashloanability/capital, same-tx atomicity, exit liquidity, MEV/keeper race for the profit, and grief vs extract.
 
-`CLASS: GRIEF` and `CLASS: PRIVILEGED` are explicit tags. They do not occupy the permissionless CONFIRMED queue.
+`CLASS: EXTRACT` is always CONFIRMED-eligible once RUNTIME_VERIFIED and ECONOMICALLY_VERIFIED hold.
+
+`CLASS: GRIEF` and `CLASS: PRIVILEGED` are explicit tags and default to NOT occupying the CONFIRMED queue — most programs do not pay for them. That default is rebuttable, not absolute: if `research/scope.md`'s Severity rubric cites the program's own rubric line pricing that exact impact (e.g. Immunefi-style "Temporary/Permanent Freezing of Funds", a named griefing/DoS band, or a trusted-role/centralization band), the card may read `CLASS: GRIEF` or `CLASS: PRIVILEGED` and still reach CONFIRMED — `report.md` must then carry the citation under a `## Severity basis` heading. No citation in scope.md, no exception: bucket it instead of reporting it. See `references/bounty.md` and `scripts/report_gate.sh`.
 
 SURVIVOR is a lead, not a finding.
 
@@ -318,7 +320,7 @@ PROMISE → REPRESENTATIONS → CONTRADICTION → IMPOSSIBLE STATE
 22. Invent CX-003 while two live cards and an unresolved probe exist.
 23. Wait until the composition phase to write a pairing CX.
 24. Tick `shapes.md` or `knowledge/` like a vulnerability-category scanner.
-25. Put GRIEF or PRIVILEGED in the permissionless CONFIRMED queue.
+25. Put GRIEF or PRIVILEGED in the CONFIRMED queue without a scope.md-cited program rubric line that pays for that exact impact.
 26. Treat a killed construction as dead after the map grows.
 27. Dump the knowledge corpus into agent context during a hunt.
 28. LazyAudit: describe the code, retrieve similar known bug titles, ask "is this like that?"

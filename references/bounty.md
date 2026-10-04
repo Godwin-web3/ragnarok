@@ -19,6 +19,8 @@ Write these into `research/scope.md`:
 - Max critical and how it is calculated (flat vs percent of funds at risk)
 - Testing boundaries (fork only, public RPC, no mainnet writes)
 
+Read the program's FULL severity matrix, not just the headline Critical/High/Medium/Low labels — most programs price non-extraction impacts (temporary freezing, permanent freezing/DoS, griefing, sometimes trusted-role/centralization risk) as their own named severity bands, separate from direct theft. Quote those bands verbatim into `research/scope.md`'s Severity rubric section. Skipping this step is how a real, payable finding gets killed as GRIEF/PRIVILEGED for no reason other than nobody checked whether the program actually pays for it.
+
 If a path is out of scope, record it in `leads.md` as OBSERVED and leave it. Do not spend a week proving an excluded impact.
 
 ## What big means here
@@ -35,7 +37,7 @@ Before promoting CX to H:
 2. Did a public audit already name this exact path at this commit?
 3. Is the impact only admin-can-rug when admin is trusted by the program?
 
-If yes, kill or bucket as PRIVILEGED RISK / DESIGN RISK / GRIEF. Do not put it in `report.md`. `CLASS: GRIEF` and `CLASS: PRIVILEGED` cannot occupy the permissionless CONFIRMED queue.
+If yes, kill or bucket as PRIVILEGED RISK / DESIGN RISK / GRIEF — unless `scope.md`'s Severity rubric cites a program line pricing that exact impact, in which case quote it under `report.md`'s Severity basis and it can carry `CLASS: GRIEF` or `CLASS: PRIVILEGED` into `report.md`. Without that citation, `CLASS: GRIEF` and `CLASS: PRIVILEGED` cannot occupy the CONFIRMED queue.
 
 ## Report that a triage team can pay
 

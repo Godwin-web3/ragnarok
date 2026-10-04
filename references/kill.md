@@ -26,8 +26,8 @@ Use `vm.snapshot` / `vm.revertTo` so each mutation starts from the same fork blo
 ## Questions that kill most leads
 
 - Is the capability INACTIVE on the live deployment?
-- Does the path require an admin key the program treats as trusted? → `CLASS: PRIVILEGED`, not CONFIRMED.
-- Does the victim lose while the attacker does not profit? → `CLASS: GRIEF`, not CONFIRMED.
+- Does the path require an admin key the program treats as trusted? → `CLASS: PRIVILEGED`. Check `scope.md`'s Severity rubric before bucketing: if the program prices trusted-role/centralization risk, this can still reach CONFIRMED with that line cited — otherwise bucket PRIVILEGED RISK.
+- Does the victim lose while the attacker does not profit? → `CLASS: GRIEF`. Check `scope.md`'s Severity rubric before bucketing: if the program prices this exact freezing/griefing/DoS impact, this can still reach CONFIRMED with that line cited in `report.md`'s Severity basis — otherwise bucket DESIGN RISK / GRIEF. Do not skip the rubric check just because the mechanism looks like a dead end; that check is what the old version of this skill was missing.
 - Does the profit get clawed back on the next action?
 - Is liquidity too thin for the assumed exit?
 - Did the attacker pay more than they extracted once gas and inventory are counted?
@@ -40,7 +40,7 @@ Use `vm.snapshot` / `vm.revertTo` so each mutation starts from the same fork blo
 
 - KILLED — record why, the mutation that died, and **Revisit if**.
 - SURVIVOR — still a lead. Not a report.
-- CONFIRMED — RUNTIME_VERIFIED effect plus ECONOMICALLY_VERIFIED EXTRACT impact plus at least one documented kill attempt that failed.
+- CONFIRMED — RUNTIME_VERIFIED effect plus ECONOMICALLY_VERIFIED impact plus at least one documented kill attempt that failed, plus `CLASS: EXTRACT`, or `CLASS: GRIEF`/`PRIVILEGED` with a `scope.md`-cited program rubric line quoted under `report.md`'s Severity basis.
 
 Revisit SELF_RESOLVED entries before `final.md`. Reasoning-only closes are allowed during mapping. They are not allowed to stay closed without one empirical check at the end.
 

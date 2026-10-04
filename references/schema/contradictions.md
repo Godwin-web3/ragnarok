@@ -40,7 +40,7 @@ FACT divergence suspected
 
 WITNESS that cannot become an assert: the card **stays INVENTED**. It cannot become PROBING.
 
-GRIEF and PRIVILEGED never promote into the permissionless CONFIRMED queue.
+GRIEF and PRIVILEGED promote into the CONFIRMED queue only with a `scope.md`-cited program rubric line (quoted in `report.md`'s Severity basis) pricing that exact impact. Without it, they stay out.
 
 A CX card may exist before `PROM-###` exists. When the construction needs a named promise, write it into `protocol-model.md` and link it. Do not invent the promise first as a way to delay the card.
 

@@ -195,6 +195,16 @@ if [ ! -f "$RESEARCH/scope.md" ]; then
 - Out-of-scope:
 - Testing boundaries:
 
+## Severity rubric (read the FULL program page, not just the headline Critical/High/Medium labels)
+_A GRIEF or PRIVILEGED finding can only reach CONFIRMED by citing a line here. Quote the
+program's own words verbatim — do not paraphrase or assume. Write "not found" if the
+program's rubric genuinely does not price that impact; do not leave these blank._
+- Temporary freezing of funds — payable? (quote the exact rubric line, or "not found"):
+- Permanent freezing of funds / DoS — payable? (quote or "not found"):
+- Griefing without attacker profit — payable? (quote or "not found"):
+- Trusted-role / centralization / privileged-admin risk — payable? (quote or "not found"):
+- Other non-extraction impact classes this program prices (list, verbatim):
+
 ## Prior scrutiny
 - Known audit reports (firm, date, commit/version scoped):
 - Bounty program Known Issues / exclusions list:
@@ -221,8 +231,9 @@ ID | ASSUMPTION | ATTACK SURFACE | PRECONDITIONS | ATTACK SEQUENCE | EXPECTED EF
 H-001 | _e.g. oracle price is trusted as fresh_ | _mint/withdraw path_ | _state, roles, funds_ | _ordered steps_ | _state delta_ | _$ impact_ | _experiment file_ | SOURCE_VERIFIED | P3 | _eth_call_ | UNTESTED
 
 Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED
-CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT.
-GRIEF and PRIVILEGED never occupy the permissionless CONFIRMED queue.
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT,
+OR CLASS GRIEF/PRIVILEGED with a program rubric line cited in scope.md's Severity rubric and
+quoted in report.md's Severity basis. No citation, no exception — bucket it instead.
 EOF
 fi
 
@@ -255,6 +266,7 @@ Required fields per card (do not invent until SYNTHESIS OPEN):
 - MONETIZATION / CHEAPEST FALSIFIER / FALSIFIER RESULT
 - HANDLERS / INVARIANT HARNESS (required once REACHABLE)
 - CLASS: EXTRACT / GRIEF / PRIVILEGED / UNKNOWN
+  (GRIEF/PRIVILEGED reach CONFIRMED only with a scope.md-cited rubric line — see references/bounty.md)
 - STATUS: INVENTED | PROBING | REACHABLE | UNREACHABLE | MONETIZABLE | KILLED
 
 Max 2 live cards (INVENTED/PROBING/REACHABLE). Max 1 open probe.

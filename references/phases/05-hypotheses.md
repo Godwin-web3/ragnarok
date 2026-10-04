@@ -33,6 +33,7 @@ P3 = GRIEF / PRIVILEGED / speculative / INACTIVE / UNVERIFIED-blocked
 Record `RANK`, `CHEAPEST FALSIFIER`, and `CLASS` on the ledger row. Run the cheapest falsifier (storage read, `eth_call`, unit test) before a scenario test. Record the result on the CX card before inventing another live card.
 
 Statuses: `UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED`.
-CONFIRMED = RUNTIME_VERIFIED effect + ECONOMICALLY_VERIFIED EXTRACT impact.
-GRIEF and PRIVILEGED never sit in the permissionless CONFIRMED queue.
+CONFIRMED = RUNTIME_VERIFIED effect + ECONOMICALLY_VERIFIED impact + CLASS EXTRACT, OR CLASS
+GRIEF/PRIVILEGED with a program rubric line cited in scope.md's Severity rubric and quoted in
+report.md's Severity basis. Without that citation, GRIEF and PRIVILEGED stay out of the queue.
 Keep `leads.md` and `contradictions.md` in sync.

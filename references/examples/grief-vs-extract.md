@@ -41,4 +41,6 @@ report.md stays the honest empty sentence.
 
 A later mutation checked whether poke() could be combined with a mint to capture the depressed rate (SHAPE-21). That would have been EXTRACT. On this target, mint is paused while harvest loss is marked, so the EXTRACT mutation died. The grief card stayed grief.
 
-What this example is for: a broken invariant is not a bounty. Tag GRIEF so it cannot clog the permissionless CONFIRMED queue.
+What this example is for: a broken invariant is not automatically a bounty. Tag GRIEF so it does not clog the CONFIRMED queue by default.
+
+Note this example never checked LockBox's own bounty program severity matrix for a priced "temporary share-price impairment" or "griefing" band — if it had one, and it named this exact mechanism (a free, repeatable, admin-independent share-price haircut), this card would carry that line in `scope.md`'s Severity rubric, add a `## Severity basis` quoting it in `report.md`, and reach CONFIRMED as `CLASS: GRIEF` instead of staying bucketed. The default is "bucket it"; the citation is what moves it, not a second look at the mechanism.

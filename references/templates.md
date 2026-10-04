@@ -34,6 +34,16 @@ Authorization is required for **live state-changing exploitation only**. It is *
 - Out-of-scope: 
 - Testing boundaries (fork-only? read-only RPC? testnets?): 
 
+## Severity rubric (read the FULL program page, not just the headline Critical/High/Medium labels)
+A GRIEF or PRIVILEGED finding can only reach CONFIRMED by citing a line here, verbatim — do not
+paraphrase or assume. Write "not found" if the program's rubric genuinely does not price that
+impact; do not leave these blank.
+- Temporary freezing of funds — payable? (quote the exact rubric line, or "not found"):
+- Permanent freezing of funds / DoS — payable? (quote or "not found"):
+- Griefing without attacker profit — payable? (quote or "not found"):
+- Trusted-role / centralization / privileged-admin risk — payable? (quote or "not found"):
+- Other non-extraction impact classes this program prices (list, verbatim):
+
 ## Prior scrutiny
 A prior for novelty priority — never a reason to skip verification. Known scrutiny reduces where to look
 first for something new; it never makes an area safe (deployment drift, composition, and changed assumptions
@@ -254,7 +264,7 @@ Full schema and gate properties: `references/schema/protocol-model.md`.
 - FALSIFIER RESULT: unrecorded
 - HANDLERS: deposit, withdraw, donate
 - INVARIANT HARNESS: research/experiments/CX001_invariant.t.sol
-- CLASS: EXTRACT / GRIEF / PRIVILEGED / UNKNOWN
+- CLASS: EXTRACT / GRIEF / PRIVILEGED / UNKNOWN (GRIEF/PRIVILEGED need a scope.md-cited rubric line to reach CONFIRMED)
 - BLOCKED BY:
 - STATUS: INVENTED
 ```
@@ -272,7 +282,7 @@ H-001 | ... | ... | ... | ... | ... | ... | research/experiments/H-001 | SOURCE_
 
 Statuses: UNTESTED | TESTING | KILLED | INCONCLUSIVE | SURVIVOR | CONFIRMED | GRIEF | PRIVILEGED
 Evidence levels: SOURCE_VERIFIED | DEPLOYMENT_VERIFIED | RUNTIME_VERIFIED | ECONOMICALLY_VERIFIED
-CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT. SURVIVOR alone is a lead, not a finding. GRIEF / PRIVILEGED never occupy this CONFIRMED cell.
+CONFIRMED requires RUNTIME_VERIFIED (effect) + ECONOMICALLY_VERIFIED (impact) + CLASS EXTRACT, OR CLASS GRIEF/PRIVILEGED with a program rubric line cited in scope.md's Severity rubric and quoted in report.md's Severity basis. SURVIVOR alone is a lead, not a finding. Without a citation, GRIEF / PRIVILEGED do not occupy this CONFIRMED cell.
 ```
 
 ## killed.md (PHASE 8)
@@ -366,8 +376,12 @@ Status values:
 - SAME-TX ATOMICITY:
 - EXIT LIQUIDITY:
 - MEV / KEEPER RACE:
-- CLASS: EXTRACT
+- CLASS: EXTRACT <!-- or GRIEF / PRIVILEGED — then add the Severity basis section below; required by report_gate.sh -->
 
+## Severity basis
+<REQUIRED only when CLASS is GRIEF or PRIVILEGED. Quote, verbatim, the exact line from
+research/scope.md's Severity rubric that prices this impact on THIS program. Omit this
+section entirely for CLASS: EXTRACT.>
 
 ## Attacker Requirements
 <capital, liquidity, gas, tokens, access, time; whether permissionless>

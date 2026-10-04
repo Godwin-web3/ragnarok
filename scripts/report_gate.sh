@@ -122,22 +122,59 @@ else
   econ="$(section_body "$REPORT" 'economic impact')"
   class=""
   class="$(printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -iE 'CLASS:' | head -1 | sed -E 's/^[^:]*:[[:space:]]*//' || true)"
+
+  # EXTRACT is always CONFIRMED-eligible. GRIEF/PRIVILEGED are eligible only
+  # when scope.md's Severity rubric cites a program line pricing that exact
+  # non-extraction impact, and report.md quotes it under "Severity basis".
+  # No citation, no exception: same block as before.
+  SCOPE="$RESEARCH/scope.md"
+  rubric="$(section_body "$SCOPE" 'severity rubric')"
+  basis="$(section_body "$REPORT" 'severity basis')"
+
+  check_payable_class() {
+    local keyword_re="$1" label="$2" match answer
+    # Skip the template's own italic instructions (start with "_") so they
+    # cannot be mistaken for a bullet's filled-in answer.
+    match="$(printf '%s\n' "$rubric" | grep -v '^_' | grep -iE "$keyword_re" | head -1)"
+    if [ -z "$match" ]; then
+      REASONS+=("CLASS: $label — no matching line in scope.md's Severity rubric at all — bucket it, do not report")
+      return 1
+    fi
+    # The bullet format is "- label — payable? (... or \"not found\"): <answer>".
+    # Take only what comes after the LAST "):" so the prompt text itself
+    # (which always mentions "not found" as an option) is never mistaken
+    # for a real "not found" answer.
+    answer="$(printf '%s' "$match" | sed -E 's/.*\)[[:space:]]*:[[:space:]]*//')"
+    if printf '%s' "$answer" | grep -qiE '^"?not found"?[.]?$'; then
+      answer=""
+    fi
+    if is_placeholder_or_blank "$answer"; then
+      REASONS+=("CLASS: $label has no cited program rubric line in scope.md's Severity rubric (still blank or \"not found\") — bucket it, do not report")
+      return 1
+    fi
+    if is_placeholder_or_blank "$basis"; then
+      REASONS+=("CLASS: $label is rubric-payable per scope.md but report.md is missing a 'Severity basis' section quoting it")
+      return 1
+    fi
+    return 0
+  }
+
   if printf '%s' "$class" | grep -qiE 'GRIEF'; then
-    REASONS+=("CLASS: GRIEF cannot enter the permissionless CONFIRMED queue — bucket it, do not report")
+    check_payable_class 'freez|grief|denial of service|\bDoS\b' 'GRIEF'
   fi
   if printf '%s' "$class" | grep -qiE 'PRIVILEGED'; then
-    REASONS+=("CLASS: PRIVILEGED cannot enter the permissionless CONFIRMED queue — bucket PRIVILEGED RISK")
+    check_payable_class 'trusted.?role|centrali[sz]ation|privileged' 'PRIVILEGED'
   fi
   if [ -z "$(printf '%s' "$class" | tr -d '[:space:]')" ]; then
     if printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -qiE '\bGRIEF\b'; then
-      REASONS+=("finding tagged GRIEF cannot be CONFIRMED permissionless")
+      REASONS+=("finding reads GRIEF in prose but has no explicit CLASS: GRIEF line — tag it and cite scope.md's Severity rubric, or bucket it")
     elif printf '%s\n' "$econ" "${CONFIRMED_ROWS:-}" | grep -qiE '\bPRIVILEGED\b'; then
-      REASONS+=("finding tagged PRIVILEGED cannot be CONFIRMED permissionless")
+      REASONS+=("finding reads PRIVILEGED in prose but has no explicit CLASS: PRIVILEGED line — tag it and cite scope.md's Severity rubric, or bucket it")
     else
-      REASONS+=("CONFIRMED requires CLASS: EXTRACT (GRIEF/PRIVILEGED stay out of this queue)")
+      REASONS+=("CONFIRMED requires CLASS: EXTRACT, or GRIEF/PRIVILEGED with a scope.md-cited rubric line")
     fi
-  elif ! printf '%s' "$class" | grep -qiE 'EXTRACT'; then
-    REASONS+=("CONFIRMED CLASS must be EXTRACT — GRIEF/PRIVILEGED are not the permissionless queue")
+  elif ! printf '%s' "$class" | grep -qiE 'EXTRACT|GRIEF|PRIVILEGED'; then
+    REASONS+=("CONFIRMED CLASS must be EXTRACT, or GRIEF/PRIVILEGED with a scope.md-cited rubric line")
   fi
 
   missing_econ=""
@@ -172,7 +209,9 @@ build_report() {
   else
     echo "DO NOT SHIP report.md as a finding. Return to the ledger / harness / falsification."
     echo "CONFIRMED still requires RUNTIME_VERIFIED + ECONOMICALLY_VERIFIED + kill attempt."
-    echo "GRIEF and PRIVILEGED stay out of this queue. If nothing is CONFIRMED, honest empty."
+    echo "GRIEF/PRIVILEGED stay out of this queue UNLESS scope.md's Severity rubric cites a"
+    echo "program line pricing that exact impact and report.md quotes it under Severity basis."
+    echo "If nothing is CONFIRMED (or rubric-payable), honest empty."
   fi
 }
 

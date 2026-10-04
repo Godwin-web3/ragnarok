@@ -41,7 +41,7 @@ If the fuzzer never trips the assert, that is not a kill by itself. It is "no se
 ## Handler rules
 
 - Only valid, permissionless (or in-scope) calls.
-- Do not `vm.prank` an admin unless `CLASS` is already PRIVILEGED — and then do not put it in the CONFIRMED EXTRACT queue.
+- Do not `vm.prank` an admin unless `CLASS` is already PRIVILEGED — and then it only reaches CONFIRMED with a scope.md-cited rubric line for trusted-role/centralization risk; otherwise it stays PRIVILEGED RISK, not CONFIRMED EXTRACT.
 - Bound amounts to realistic deploy liquidity.
 - Include the pairing's both sides (vault **and** oracle-adjacent entry, queue **and** settle, message **and** mint).
 - Snapshot value that MONETIZATION would move; the witness test still has to show value moved.

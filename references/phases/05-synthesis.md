@@ -57,7 +57,7 @@ Focus lock: max 2 live (`INVENTED`/`PROBING`/`REACHABLE`). Max 1 `PROBING`. No C
 - FALSIFIER RESULT: unrecorded | <value>
 - HANDLERS: permissionless functions (required once REACHABLE)
 - INVARIANT HARNESS: path (required once REACHABLE)
-- CLASS: EXTRACT | GRIEF | PRIVILEGED | UNKNOWN
+- CLASS: EXTRACT | GRIEF | PRIVILEGED | UNKNOWN (GRIEF/PRIVILEGED need a scope.md-cited rubric line to reach CONFIRMED — see references/bounty.md)
 - BLOCKED BY: missing node / unknown behavior / none
 - STATUS: INVENTED | PROBING | REACHABLE | UNREACHABLE | MONETIZABLE | KILLED
 ```

@@ -19,9 +19,9 @@ CLASS: EXTRACT | GRIEF | PRIVILEGED
 
 ## Grief vs extract (mandatory)
 
-- EXTRACT — permissionless attacker profit, realistic capital, exit, atomicity. This is the only class that may become CONFIRMED.
-- GRIEF — victim or protocol loss without attacker profit (or profit dominated by cost). Tag `CLASS: GRIEF`. Bucket it. Do not clog the CONFIRMED queue.
-- PRIVILEGED — needs an in-scope-trusted admin/role. Tag `CLASS: PRIVILEGED`. Bucket PRIVILEGED RISK. Not a permissionless CONFIRMED finding.
+- EXTRACT — permissionless attacker profit, realistic capital, exit, atomicity. Always CONFIRMED-eligible once RUNTIME_VERIFIED and ECONOMICALLY_VERIFIED hold.
+- GRIEF — victim or protocol loss without attacker profit (or profit dominated by cost). Tag `CLASS: GRIEF`. Default: bucket it, do not clog the CONFIRMED queue. Exception: if `scope.md`'s Severity rubric cites a program line pricing this exact freezing/griefing/DoS impact, quote it under `report.md`'s Severity basis — it can then be CONFIRMED.
+- PRIVILEGED — needs an in-scope-trusted admin/role. Tag `CLASS: PRIVILEGED`. Default: bucket PRIVILEGED RISK, not a permissionless CONFIRMED finding. Exception: if `scope.md`'s Severity rubric cites a trusted-role/centralization band, quote it under `report.md`'s Severity basis — it can then be CONFIRMED.
 
 ## Before CONFIRMED
 

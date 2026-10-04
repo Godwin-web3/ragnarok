@@ -4,7 +4,7 @@ A CONFIRMED finding needs, where technically possible: root cause, file:line on 
 
 Buckets in `final.md`: CONFIRMED, INCONCLUSIVE, DESIGN RISK, PRIVILEGED RISK, FALSE POSITIVE, COVERAGE LIMITATION. Carry evidence levels forward.
 
-`report.md` contains CONFIRMED EXTRACT findings only. GRIEF and PRIVILEGED stay in `final.md` buckets. Run:
+`report.md` contains CONFIRMED findings only: CLASS EXTRACT, or CLASS GRIEF/PRIVILEGED with a program rubric line cited in `scope.md`'s Severity rubric and quoted under a `## Severity basis` heading. Without that citation, GRIEF and PRIVILEGED stay in `final.md` buckets. Run:
 
 ```
 scripts/report_gate.sh research/
