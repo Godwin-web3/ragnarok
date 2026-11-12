@@ -45,6 +45,18 @@ bash scripts/diagnostic_bench.sh
 
 The runner writes logs and a timestamped summary under `diagnostics/runs/`. It tests the repository's mechanical gates only; it does not run the blind discovery benchmark. Protocol targets remain `BLOCKED` until a discovery adapter and independent reproduction workflow exist. GitHub Actions also runs this regression command on relevant pushes and supports manual dispatch.
 
+## Blind workspace preparation (experimental)
+
+A source-only packager now exists for the first target:
+
+```bash
+python3 scripts/prepare_blind_target.py \\
+  --target dvd-unstoppable \\
+  --out /tmp/ragnarok-blind/dvd-unstoppable
+```
+
+It pins upstream Damn Vulnerable DeFi to commit `64fddf9f96de2782f8868898d68673acb295119c` and exports only the allowlisted challenge README and target contracts. It writes a SHA-256 manifest and excludes answer keys, tests, and existing research artifacts. Inspect `MANIFEST.json` before passing the workspace to an agent. The packager does not launch an agent, compile the project, or verify a finding; this target remains `BLOCKED` in scored discovery until those stages are implemented and independently exercised.
+
 ## V6.5 diagnostic protocol
 
 The V6.1 baseline, reproducible benchmark protocol and append-only results ledger live in [`diagnostics/`](../diagnostics/):
