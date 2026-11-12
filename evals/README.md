@@ -34,3 +34,12 @@ Or locally:
 ```
 
 Do not paste EXPECTED.md into the agent context during the hunt.
+
+## V6.5 diagnostic protocol
+
+The V6.1 baseline, reproducible benchmark protocol and append-only results ledger live in [`diagnostics/`](../diagnostics/):
+
+- [BASELINE.md](../diagnostics/BASELINE.md) — observed V6.1 behavior and invariants to preserve.
+- [BENCHMARK.md](../diagnostics/BENCHMARK.md) — blind evaluation, independent reproduction and scoring protocol.
+- [RESULTS.md](../diagnostics/RESULTS.md) — append-only run ledger. It starts empty; no scores are claimed.
+
