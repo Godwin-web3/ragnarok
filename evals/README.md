@@ -35,6 +35,16 @@ Or locally:
 
 Do not paste EXPECTED.md into the agent context during the hunt.
 
+## Run repository diagnostics
+
+From a clean checkout, run:
+
+```bash
+bash scripts/diagnostic_bench.sh
+```
+
+The runner writes logs and a timestamped summary under `diagnostics/runs/`. It tests the repository's mechanical gates only; it does not run the blind discovery benchmark. Protocol targets remain `BLOCKED` until a discovery adapter and independent reproduction workflow exist. GitHub Actions also runs this regression command on relevant pushes and supports manual dispatch.
+
 ## V6.5 diagnostic protocol
 
 The V6.1 baseline, reproducible benchmark protocol and append-only results ledger live in [`diagnostics/`](../diagnostics/):
