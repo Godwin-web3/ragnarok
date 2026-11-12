@@ -104,6 +104,12 @@ Each candidate must include:
 - `falsification_attempt` and result
 - `status`: INVENTED / PROBING / REACHABLE / SURVIVOR / KILLED / CONFIRMED / BLOCKED
 
+## Automated regression runner
+
+`bash scripts/diagnostic_bench.sh` runs the pinned repository regression suites, captures one log per suite, and writes a timestamped Markdown/JSON run artifact under `diagnostics/runs/`. It records the exact checkout commit and toolchain metadata. The `Ragnarok diagnostic benchmark` GitHub Actions workflow runs this command on pushes affecting the harness/evals/diagnostics and on manual dispatch, then uploads the run artifact.
+
+Important: this runner does **not** execute the blind discovery-agent workflow. Until a discovery adapter and independent verifier are wired in, all four protocol discovery targets are explicitly recorded as `BLOCKED`; a passing repository regression suite is not a target-discovery pass and is not evidence that V6.5 outperforms V6.1.
+
 ## Run procedure
 
 1. Start from a clean checkout of the exact Ragnarok commit.
