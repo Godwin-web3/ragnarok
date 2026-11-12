@@ -1,0 +1,44 @@
+name: Ragnarok diagnostic benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - v6.5-diagnostic
+    paths:
+      - 'scripts/**'
+      - 'evals/**'
+      - 'diagnostics/**'
+      - 'VERSION'
+      - '.github/workflows/ragnarok-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Ragnarok diagnostic suite
+        shell: bash
+        run: bash scripts/diagnostic_bench.sh
+
+      - name: Upload diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ragnarok-diagnostic-${{ github.sha }}
+          path: diagnostics/runs/
+          if-no-files-found: error
+          retention-days: 90
