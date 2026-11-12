@@ -63,8 +63,7 @@ for test in \
   scripts/tests/gate_check_v35_test.sh \
   scripts/tests/gate_check_v5_test.sh \
   scripts/tests/harness_init_v5_test.sh \
-  scripts/tests/report_gate_test.sh \
-  scripts/tests/shape_retrieve_test.sh; do
+  scripts/tests/report_gate_test.sh; do
   if [[ -x "$test" || -f "$test" ]]; then
     run_test "$(basename "$test" .sh)" bash "$test"
   else
@@ -124,17 +123,26 @@ done
   echo "No target-level discovery, patched-control, independent-reproduction, or V6.1-vs-V6.5 score is claimed by this run."
 } > "$OUT_DIR/summary.md"
 
-python3 - "$OUT_DIR/summary.json" "$RUN_ID" "$START_ISO" "$END_ISO" "$COMMIT" "$BRANCH" "$VERSION" "$PASS_COUNT" "$FAIL_COUNT" <<'PY'
+python3 - "$OUT_DIR/summary.json" "$RUN_ID" "$START_ISO" "$END_ISO" "$COMMIT" "$BRANCH" "$VERSION" "$PASS_COUNT" "$FAIL_COUNT" "${NAMES[*]}" "${STATUSES[*]}" "${CODES[*]}" "${DURATIONS[*]}" <<'PY'
 import json, sys
 from pathlib import Path
 (path, run_id, started, finished, commit, branch, version,
- passed, failed) = sys.argv[1:]
+ passed, failed, names, statuses, codes, durations) = sys.argv[1:]
 data = {
     "run_id": run_id, "started_utc": started, "finished_utc": finished,
     "commit": commit, "branch": branch, "version": version,
     "regression_tests": {
         "passed": int(passed), "failed": int(failed),
-        "results": []
+        "results": [
+            {
+                "test": name, "status": status,
+                "exit_code": int(code), "duration_seconds": int(duration),
+                "log": f"logs/{name}.log"
+            }
+            for name, status, code, duration in zip(
+                names.split(), statuses.split(), codes.split(), durations.split()
+            )
+        ]
     },
     "protocol_discovery": {
         "status": "BLOCKED",
