@@ -36,6 +36,47 @@ jobs:
           cp KhipuVaultFullWithdrawalPendingYieldRegression.t.sol \
             target/packages/contracts/test/KhipuVaultFullWithdrawalPendingYieldRegression.t.sol
 
+      - name: Compare deployed implementation bytecode with reviewed source build
+        working-directory: target/packages/contracts
+        env:
+          RPC_URL: https://rpc.test.mezo.org
+        run: |
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+
+          slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+          targets = [
+              ("IndividualPoolV3", "0xdfBEd2D3efBD2071fD407bF169b5e5533eA90393"),
+              ("YieldAggregatorV3", "0x3D28a5eF59Cf3ab8E2E11c0A8031373D46370BE6"),
+          ]
+
+          def cast(*args):
+              return subprocess.check_output(
+                  ["cast", *args, "--rpc-url", "https://rpc.test.mezo.org"],
+                  text=True
+              ).strip()
+
+          for contract, proxy in targets:
+              word = cast("storage", proxy, slot)
+              implementation = "0x" + word[-40:]
+              deployed = cast("code", implementation).lower()
+              artifact_path = Path("out") / f"{contract}.sol" / f"{contract}.json"
+              artifact = json.loads(artifact_path.read_text())
+              compiled = artifact["deployedBytecode"]["object"].lower()
+              if compiled.startswith("0x"):
+                  compiled = compiled[2:]
+              if deployed.startswith("0x"):
+                  deployed = deployed[2:]
+              if deployed != compiled:
+                  raise SystemExit(
+                      f"MISMATCH: {contract} proxy {proxy}, implementation {implementation}; "
+                      f"deployed bytes={len(deployed)//2}, compiled bytes={len(compiled)//2}"
+                  )
+              print(f"MATCH: {contract} proxy {proxy} -> implementation {implementation}")
+              print(f"Exact runtime bytecode match: {len(deployed)//2} bytes")
+          PY
+
       - name: Run targeted regression
         working-directory: target/packages/contracts
         run: |
