@@ -1,0 +1,46 @@
+name: KhipuVault withdrawal regression
+
+on:
+  push:
+    branches:
+      - ci/khipuvault-withdrawal-regression
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: Foundry regression test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout this PoC harness
+        uses: actions/checkout@v4
+
+      - name: Checkout KhipuVault at reviewed commit
+        uses: actions/checkout@v4
+        with:
+          repository: Ande-Labs/KhipuVault
+          ref: c069cf9f0219868fed81b78aeebf3caa5102d26b
+          path: target
+          persist-credentials: false
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Inject isolated regression test
+        run: |
+          cp KhipuVaultFullWithdrawalPendingYieldRegression.t.sol \
+            target/packages/contracts/test/KhipuVaultFullWithdrawalPendingYieldRegression.t.sol
+
+      - name: Run targeted regression
+        working-directory: target/packages/contracts
+        run: |
+          forge --version
+          forge test \
+            --match-path test/KhipuVaultFullWithdrawalPendingYieldRegression.t.sol \
+            --match-test test_fullWithdrawalRevertsWhenPendingYieldIsPositive \
+            -vvv
