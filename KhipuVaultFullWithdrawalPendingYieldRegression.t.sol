@@ -8,7 +8,7 @@ import {IYieldAggregator} from "../src/interfaces/IYieldAggregator.sol";
 import {UUPSProxy} from "../src/proxy/UUPSProxy.sol";
 import {MockMUSD} from "./mocks/MockMUSD.sol";
 
-/// @notice Regression test for the full-withdrawal amount mismatch at the pool/aggregator boundary.
+/// @notice Regression tests for the full-withdrawal amount mismatch at the pool/aggregator boundary.
 /// @dev This file is copied into KhipuVault's packages/contracts/test directory by the CI workflow.
 contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
     MockMUSD internal musd;
@@ -38,10 +38,10 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
             address(musd),
             address(aggregator),
             address(this),
-            0,          // no performance fee: isolate the withdrawal boundary
-            1 ether,    // minimum deposit
+            0,
+            1 ether,
             100_000 ether,
-            1 ether     // minimum withdrawal
+            1 ether
         );
 
         aggregator.setAuthorizedCaller(address(pool), true);
@@ -50,6 +50,18 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
         musd.mint(USER, PRINCIPAL);
         vm.prank(USER);
         musd.approve(address(pool), type(uint256).max);
+    }
+
+    function test_fullWithdrawalSucceedsBeforeYieldAccrues() public {
+        vm.prank(USER);
+        pool.deposit(PRINCIPAL);
+
+        vm.expectEmit(true, false, false, false);
+        (uint256 principal, uint256 netYield) = _withdrawAsUser();
+
+        assertEq(principal, PRINCIPAL);
+        assertEq(netYield, 0);
+        assertEq(musd.balanceOf(USER), PRINCIPAL);
     }
 
     function test_fullWithdrawalRevertsWhenPendingYieldIsPositive() public {
@@ -71,5 +83,29 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
         vm.expectRevert(YieldAggregatorV3.InvalidAmount.selector);
         vm.prank(USER);
         pool.withdraw();
+    }
+
+    function test_claimYieldFirstAllowsPrincipalWithdrawal() public {
+        vm.prank(USER);
+        pool.deposit(PRINCIPAL);
+
+        vm.warp(block.timestamp + 30 days);
+        uint256 pendingYield = aggregator.getPendingYield(address(pool));
+        assertGt(pendingYield, 0);
+
+        vm.prank(USER);
+        pool.claimYield();
+
+        assertEq(aggregator.getPendingYield(address(pool)), 0);
+
+        (uint256 principal, uint256 netYield) = _withdrawAsUser();
+        assertEq(principal, PRINCIPAL);
+        assertEq(netYield, 0);
+        assertEq(musd.balanceOf(USER), PRINCIPAL + pendingYield);
+    }
+
+    function _withdrawAsUser() internal returns (uint256 principal, uint256 netYield) {
+        vm.prank(USER);
+        return pool.withdraw();
     }
 }
