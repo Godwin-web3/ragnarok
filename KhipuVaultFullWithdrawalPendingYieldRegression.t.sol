@@ -31,6 +31,10 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
 
         aggregator.addVault(TEST_VAULT, IYieldAggregator.YieldStrategy.AAVE, 600);
 
+        // The testnet strategy simulates yield without generating external assets.
+        // Prefund the aggregator so the claim-then-withdraw control has a reserve.
+        musd.mint(address(aggregatorProxy), 100 ether);
+
         IndividualPoolV3 poolImplementation = new IndividualPoolV3();
         UUPSProxy poolProxy = new UUPSProxy(address(poolImplementation), bytes(""));
         pool = IndividualPoolV3(address(poolProxy));
