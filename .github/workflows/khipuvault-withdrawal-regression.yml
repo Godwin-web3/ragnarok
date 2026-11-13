@@ -42,5 +42,4 @@ jobs:
           forge --version
           forge test \
             --match-path test/KhipuVaultFullWithdrawalPendingYieldRegression.t.sol \
-            --match-test test_fullWithdrawalRevertsWhenPendingYieldIsPositive \
             -vvv
