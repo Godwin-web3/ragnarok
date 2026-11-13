@@ -41,6 +41,7 @@ jobs:
         env:
           RPC_URL: https://rpc.test.mezo.org
         run: |
+          forge build
           python3 - <<'PY'
           import json, subprocess
           from pathlib import Path
@@ -61,8 +62,10 @@ jobs:
               word = cast("storage", proxy, slot)
               implementation = "0x" + word[-40:]
               deployed = cast("code", implementation).lower()
-              artifact_path = Path("out") / f"{contract}.sol" / f"{contract}.json"
-              artifact = json.loads(artifact_path.read_text())
+              matches = list(Path("out").rglob(f"{contract}.json"))
+              if len(matches) != 1:
+                  raise SystemExit(f"Expected one artifact for {contract}; found: {matches}")
+              artifact = json.loads(matches[0].read_text())
               compiled = artifact["deployedBytecode"]["object"].lower()
               if compiled.startswith("0x"):
                   compiled = compiled[2:]
