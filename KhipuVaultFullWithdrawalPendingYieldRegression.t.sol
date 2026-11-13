@@ -86,6 +86,12 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
         vm.expectRevert(YieldAggregatorV3.InvalidAmount.selector);
         vm.prank(USER);
         pool.withdraw();
+
+        // The revert must be atomic: the user's pool position and aggregator
+        // principal accounting remain intact after the failed combined exit.
+        (uint256 poolPrincipal,,,,,) = pool.getUserInfo(USER);
+        assertEq(poolPrincipal, PRINCIPAL);
+        assertEq(aggregator.userTotalDeposited(address(pool)), PRINCIPAL);
     }
 
     function test_claimYieldFirstAllowsPrincipalWithdrawal() public {
