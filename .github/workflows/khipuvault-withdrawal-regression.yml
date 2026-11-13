@@ -43,3 +43,35 @@ jobs:
           forge test \
             --match-path test/KhipuVaultFullWithdrawalPendingYieldRegression.t.sol \
             -vvv
+
+  deployment-source-check:
+    name: Read-only Mezo deployment check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Inspect deployed proxies
+        env:
+          RPC_URL: https://rpc.test.mezo.org
+        run: |
+          set -euo pipefail
+          POOL=0xdfBEd2D3efBD2071fD407bF169b5e5533eA90393
+          AGG=0x3D28a5eF59Cf3ab8E2E11c0A8031373D46370BE6
+          SLOT=0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+          echo "Mezo chain ID:"
+          cast chain-id --rpc-url "$RPC_URL"
+          for ADDRESS in "$POOL" "$AGG"; do
+            echo "=== Proxy $ADDRESS ==="
+            CODE=$(cast code "$ADDRESS" --rpc-url "$RPC_URL")
+            echo "Proxy runtime bytes: $(( (${#CODE} - 2) / 2 ))"
+            WORD=$(cast storage "$ADDRESS" "$SLOT" --rpc-url "$RPC_URL")
+            IMPL="0x${WORD: -40}"
+            echo "EIP-1967 implementation: $IMPL"
+            IMPL_CODE=$(cast code "$IMPL" --rpc-url "$RPC_URL")
+            echo "Implementation runtime bytes: $(( (${#IMPL_CODE} - 2) / 2 ))"
+            echo "Implementation runtime keccak256:"
+            cast keccak "$IMPL_CODE"
+          done
