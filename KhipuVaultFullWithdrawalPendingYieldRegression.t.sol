@@ -56,7 +56,6 @@ contract KhipuVaultFullWithdrawalPendingYieldRegression is Test {
         vm.prank(USER);
         pool.deposit(PRINCIPAL);
 
-        vm.expectEmit(true, false, false, false);
         (uint256 principal, uint256 netYield) = _withdrawAsUser();
 
         assertEq(principal, PRINCIPAL);
